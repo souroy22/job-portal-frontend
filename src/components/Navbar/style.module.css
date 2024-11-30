@@ -1,0 +1,37 @@
+.navbarContainer {
+  width: 100svw;
+  height: 60px;
+  padding: 10px 40px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.logoImage {
+  width: 60px;
+  height: 60px;
+}
+
+.navbarBtn {
+  border-color: #fff !important;
+  background-color: #030817 !important;
+  color: #fff !important;
+  text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,5 @@
+.profileContainer {
+  overflow-y: auto;
+  width: 100svw;
+  overflow-x: hidden;
+}

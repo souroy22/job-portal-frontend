@@ -1,0 +1,18 @@
+.signupFormContainer {
+  box-shadow: 0 0 5px gray;
+  width: max-content;
+  padding: 30px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  color: #6c63ff;
+}
+
+.navigate {
+  color: aliceblue;
+  text-align: center;
+}

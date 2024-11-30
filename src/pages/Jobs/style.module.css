@@ -1,0 +1,22 @@
+.textGlow {
+  font-size: 4rem;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.jobListContainer {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 20px 0;
+  overflow-y: auto;
+  height: calc(100svh - 300px);
+}
+
+.jobListContainer::-webkit-scrollbar {
+  display: none;
+}
