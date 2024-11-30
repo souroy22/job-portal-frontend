@@ -3,22 +3,24 @@ import { Routes, Route } from "react-router-dom";
 import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
 import FallBack from "../components/FallBack";
-import Login from "../pages/Login";
-import Signup from "../pages/Signup";
 import NonSelectedRoleRoute from "./NonSelectedRoleRoute";
-import SetRole from "../pages/SetRole";
 import SelectedRoleRoute from "./SelectedRoleRoute";
-import NotFound from "../pages/NotFound";
-import Profile from "../pages/Profile";
 import CompletedProfileStep from "./CompletedProfileStep";
-import Jobs from "../pages/Jobs";
-import CreateNewJob from "../pages/CreateNewJob";
-import AccessDenied from "../pages/AccessDenied";
 import RecuiterRoute from "./RecruiterRoute";
 import CandidateRoute from "./CandidateRoute";
-import JobDetails from "../pages/JobDetails";
-import RecommendedJobs from "../pages/RecommendedJobs";
-import PostedJobs from "../pages/PostedJobs";
+
+// Lazy load pages
+const Login = lazy(() => import("../pages/Login"));
+const Signup = lazy(() => import("../pages/Signup"));
+const NotFound = lazy(() => import("../pages/NotFound"));
+const Profile = lazy(() => import("../pages/Profile"));
+const SetRole = lazy(() => import("../pages/SetRole"));
+const Jobs = lazy(() => import("../pages/Jobs"));
+const CreateNewJob = lazy(() => import("../pages/CreateNewJob"));
+const AccessDenied = lazy(() => import("../pages/AccessDenied"));
+const JobDetails = lazy(() => import("../pages/JobDetails"));
+const RecommendedJobs = lazy(() => import("../pages/RecommendedJobs"));
+const PostedJobs = lazy(() => import("../pages/PostedJobs"));
 const HomePage = lazy(() => import("../pages/Home"));
 
 const RouterComponent = () => {
