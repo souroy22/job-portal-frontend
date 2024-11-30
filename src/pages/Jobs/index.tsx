@@ -18,6 +18,7 @@ import { getAllJobs } from "../../api/job.api";
 import { useDispatch, useSelector } from "react-redux";
 import { setJobs } from "../../store/job/jobReducer";
 import { RootState } from "../../store/store";
+import { setGlobalLoading } from "../../store/global/globalReducer";
 
 const Jobs = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -49,28 +50,36 @@ const Jobs = () => {
     fetchJobs(searchValue, location, selectedJobTypes?.value);
   };
 
-  const handleSelectLocation = (
+  const handleSelectLocation = async (
     _: SyntheticEvent<Element, Event>,
     value: string | null
   ) => {
     if (value) {
       setLocation(value);
-      fetchJobs(searchValue, value, selectedJobTypes?.value);
+      await fetchJobs(searchValue, value, selectedJobTypes?.value);
     }
   };
 
-  const handleSelectType = (
+  const handleSelectType = async (
     _: SyntheticEvent<Element, Event>,
     value: { label: string; value: string } | null
   ) => {
     if (value) {
       setSelectedJobTypes(value);
-      fetchJobs(searchValue, location, value.value);
+      await fetchJobs(searchValue, location, value.value);
     }
   };
 
   const onLoad = async () => {
+    dispatch(setGlobalLoading(true));
     await fetchJobs();
+    dispatch(setGlobalLoading(false));
+  };
+
+  const handleClearFilters = async () => {
+    setLocation("");
+    setSelectedJobTypes(null);
+    await fetchJobs(searchValue);
   };
 
   useEffect(() => {
@@ -261,7 +270,12 @@ const Jobs = () => {
                   />
                 )}
               />
-              <Button variant="contained" color="error" sx={{ width: "350px" }}>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ width: "350px" }}
+                onClick={handleClearFilters}
+              >
                 Clear Filters
               </Button>
             </Box>
@@ -274,12 +288,11 @@ const Jobs = () => {
         {jobs?.map((job) => (
           <JobCard
             title={job.title}
-            company={job.company}
             location={job.location}
             description={job.description}
             logo={job.logo}
-            onMoreDetails={() => {}}
             jobId={job.id}
+            applied={job.applied}
           />
         ))}
       </Box>

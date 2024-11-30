@@ -10,6 +10,7 @@ export type JOB_TYPE = {
   jobType: "Full-time" | "Part-time" | "Contract";
   salary?: number;
   requirements: string[];
+  applied: boolean;
 };
 
 type JobStateType = {

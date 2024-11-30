@@ -17,6 +17,8 @@ import AccessDenied from "../pages/AccessDenied";
 import RecuiterRoute from "./RecruiterRoute";
 import CandidateRoute from "./CandidateRoute";
 import JobDetails from "../pages/JobDetails";
+import RecommendedJobs from "../pages/RecommendedJobs";
+import PostedJobs from "../pages/PostedJobs";
 const HomePage = lazy(() => import("../pages/Home"));
 
 const RouterComponent = () => {
@@ -34,10 +36,12 @@ const RouterComponent = () => {
               <Route path="/" element={<HomePage />} />
               <Route element={<CandidateRoute />}>
                 <Route path="/all-jobs" element={<Jobs />} />
+                <Route path="/recommended-jobs" element={<RecommendedJobs />} />
                 <Route path="/job-details/:jobId" element={<JobDetails />} />
               </Route>
               <Route element={<RecuiterRoute />}>
                 <Route path="/create-job" element={<CreateNewJob />} />
+                <Route path="/posted-jobs" element={<PostedJobs />} />
               </Route>
             </Route>
           </Route>

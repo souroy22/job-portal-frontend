@@ -12,21 +12,19 @@ import { Link } from "react-router-dom";
 
 interface JobCardProps {
   title: string;
-  company: string;
   location: string;
   description: string;
   logo: string;
-  onMoreDetails: () => void;
   jobId: string;
+  applied: boolean;
 }
 
 const JobCard: React.FC<JobCardProps> = ({
   title,
-  company,
   logo,
   location,
   description,
-  onMoreDetails,
+  applied,
   jobId,
 }) => {
   return (
@@ -38,8 +36,20 @@ const JobCard: React.FC<JobCardProps> = ({
         borderRadius: "10px",
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.25)",
         cursor: "pointer",
+        position: "relative",
       }}
     >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "20px",
+          right: "10px",
+          color: "green",
+          fontWeight: 600,
+        }}
+      >
+        {applied ? "Applied" : null}
+      </Box>
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" fontWeight={600}>
@@ -74,7 +84,6 @@ const JobCard: React.FC<JobCardProps> = ({
         <Link to={`/job-details/${jobId}`}>
           <Button
             variant="contained"
-            onClick={onMoreDetails}
             fullWidth
             sx={{
               mt: 2,

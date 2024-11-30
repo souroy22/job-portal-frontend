@@ -76,10 +76,24 @@ const Navbar = () => {
             </Button>
           </Link>
         )}
+        {user?.role === "job_seeker" && (
+          <Link to="/recommended-jobs">
+            <Button variant="outlined" className={classes.navbarBtn}>
+              Recommended Jobs
+            </Button>
+          </Link>
+        )}
         {user?.role === "recruiter" && (
           <Link to="/create-job">
             <Button variant="outlined" className={classes.navbarBtn}>
               Create Job
+            </Button>
+          </Link>
+        )}
+        {user?.role === "recruiter" && (
+          <Link to="/posted-jobs">
+            <Button variant="outlined" className={classes.navbarBtn}>
+              Posted Jobs
             </Button>
           </Link>
         )}

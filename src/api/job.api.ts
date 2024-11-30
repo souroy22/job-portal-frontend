@@ -37,3 +37,19 @@ export const getJobDetails = async (jobId: string) => {
   }
   return res.data;
 };
+
+export const getRecommendedJobs = async () => {
+  const res = await AXIOS.get("/job/recommended-job");
+  if (res.data.error) {
+    return Promise.reject(res.data.error);
+  }
+  return res.data;
+};
+
+export const getPostedJobs = async () => {
+  const res = await AXIOS.get("/job/posted-jobs");
+  if (res.data.error) {
+    return Promise.reject(res.data.error);
+  }
+  return res.data;
+};
