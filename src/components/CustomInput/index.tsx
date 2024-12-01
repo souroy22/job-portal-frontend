@@ -1,6 +1,7 @@
-import { TextField } from "@mui/material";
+import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { ChangeEvent, FC } from "react";
 import classes from "./style.module.css";
+import ClearIcon from "@mui/icons-material/Clear";
 
 type PROP_TYPE = {
   label: string;
@@ -9,17 +10,21 @@ type PROP_TYPE = {
   value: string | number;
   type?: "text" | "date" | "number";
   disabled?: boolean;
+  handleClear?: () => void;
+  hasClearIcon?: boolean;
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
 const CustomInput: FC<PROP_TYPE> = ({
   label,
   value,
+  hasClearIcon = false,
   handleChange,
   type = "text",
   disabled = false,
   name = "",
   error = "",
+  handleClear,
 }) => {
   return (
     <>
@@ -31,8 +36,26 @@ const CustomInput: FC<PROP_TYPE> = ({
         disabled={disabled}
         value={value}
         error={!!error}
-        onChange={handleChange}
+        onChange={(event) => {
+          !event.target.value.trim() && handleClear && handleClear();
+          handleChange(event as any);
+        }}
         className={classes.textInput}
+        InputProps={{
+          endAdornment:
+            value && !disabled && hasClearIcon ? (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => {
+                    handleClear && handleClear();
+                  }}
+                  sx={{ color: "#FFF" }} // Apply white color to the icon
+                >
+                  <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            ) : null,
+        }}
         sx={{
           "& .MuiInputBase-input": {
             cursor: disabled ? "not-allowed" : "auto",

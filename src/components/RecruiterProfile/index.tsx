@@ -64,7 +64,9 @@ const RecruiterProfile: React.FC = () => {
           sx={{
             width: 120,
             height: 120,
-            objectFit: "scale-down",
+            "& img": {
+              objectFit: "scale-down",
+            },
           }}
         />
         <Box>

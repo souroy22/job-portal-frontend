@@ -42,6 +42,11 @@ const Jobs = () => {
     dispatch(setJobs(allJobs.data));
   };
 
+  const handleClear = () => {
+    setSearchValue("");
+    fetchJobs("", location, selectedJobTypes?.value);
+  };
+
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value);
   };
@@ -109,6 +114,8 @@ const Jobs = () => {
               label="search..."
               value={searchValue}
               handleChange={handleSearchChange}
+              hasClearIcon
+              handleClear={handleClear}
             />
             <Button
               variant="contained"
