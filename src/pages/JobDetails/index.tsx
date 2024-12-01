@@ -14,8 +14,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { JOB_TYPE } from "../../store/job/jobReducer";
-import { getJobDetails } from "../../api/job.api";
+import { setJobData } from "../../store/job/jobReducer";
+import { getJobDetails, updateJobStatus } from "../../api/job.api";
 import { useParams } from "react-router-dom";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
@@ -30,24 +30,23 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import EmailIcon from "@mui/icons-material/Email";
 import { formatDate } from "../../utils/formatDate";
 import { setGlobalLoading } from "../../store/global/globalReducer";
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 const options = ["Applied", "In Review", "Shortlisted", "Rejected", "Accepted"];
-
-interface JOB_DETAILS extends JOB_TYPE {
-  applicantCount: number;
-  status: "open" | "closed";
-  applied: boolean;
-  applicants?: any[];
-}
+const applicationStatusOptions = [
+  { label: "Open", value: "open" },
+  { label: "Close", value: "closed" },
+];
 
 const JobDetails = () => {
-  const [jobData, setJobData] = useState<JOB_DETAILS | null>(null);
   const [loading, setLoading] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<null | string>(
     null
   );
+  const [jobStatus, setJobStatus] = useState("open");
 
   const { user } = useSelector((state: RootState) => state.userReducer);
+  const { jobData } = useSelector((state: RootState) => state.jobReducer);
 
   const { jobId } = useParams();
   const dispatch = useDispatch();
@@ -55,8 +54,9 @@ const JobDetails = () => {
   const onLoad = async () => {
     if (jobId) {
       const jobDetails = await getJobDetails(jobId);
-      setJobData(jobDetails);
-      setApplicationStatus(jobDetails.applicants[0].status);
+      dispatch(setJobData(jobDetails));
+      setApplicationStatus(jobDetails.applicants[0]?.status);
+      setJobStatus(jobDetails.status);
     }
   };
 
@@ -67,6 +67,7 @@ const JobDetails = () => {
     setLoading(true);
     if (jobData) {
       await applyJob(jobData.id);
+      dispatch(setJobData({ ...jobData, applied: true }));
       setLoading(false);
       notification.success("Successfully applied");
     }
@@ -80,6 +81,16 @@ const JobDetails = () => {
         await changeStatus(jobData.id, id, event.target.value as string);
       }
       notification.success("Status updated successfully");
+    },
+    () => dispatch(setGlobalLoading(false))
+  );
+
+  const handleChangeJobStatus = handleAsync(
+    async (value: string) => {
+      dispatch(setGlobalLoading(true));
+      setJobStatus(value);
+      await updateJobStatus(jobData?.id!, value);
+      notification.success("Job Status updated successfully");
     },
     () => dispatch(setGlobalLoading(false))
   );
@@ -114,10 +125,59 @@ const JobDetails = () => {
               ? "No Applicant"
               : Number(jobData?.applicantCount)}
           </Box>
-          <Box className={classes.logoWithData}>
-            <BlindsIcon fontSize="small" />
-            {jobData?.status === "open" ? "Open" : "Closed"}
-          </Box>
+          {user?.role === "job_seeker" ? (
+            <Box className={classes.logoWithData}>
+              <BlindsIcon fontSize="small" />
+              {jobData?.status === "open" ? "Open" : "Closed"}
+            </Box>
+          ) : (
+            <Box>
+              <FormControl
+                variant="outlined"
+                sx={{
+                  minWidth: 200,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#fff",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#fff",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#fff",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#fff",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#fff",
+                  },
+                }}
+              >
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={jobStatus as any}
+                  onChange={(event) =>
+                    handleChangeJobStatus(event.target.value)
+                  }
+                  label="Status"
+                  sx={{
+                    color: "#fff",
+                    "& .MuiSvgIcon-root": {
+                      color: "#fff",
+                    },
+                  }}
+                >
+                  {applicationStatusOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
         </Box>
         <Box
           sx={{
@@ -154,9 +214,17 @@ const JobDetails = () => {
           <Typography variant="h4" fontWeight={600} gutterBottom>
             Job Description
           </Typography>
-          <Typography variant="h6" component="p" fontWeight={400}>
+          {/* <Typography variant="h6" component="p" fontWeight={400}>
             {jobData?.description}
-          </Typography>
+          </Typography> */}
+          {/* <ReactMarkdown
+            children={jobData?.description}
+            remarkPlugins={[remarkGfm]} // Enable GitHub Flavored Markdown (GFM)
+          /> */}
+          <MarkdownPreview
+            source={jobData?.description}
+            style={{ padding: 16 }}
+          />
         </Box>
         {user?.role === "job_seeker" && (
           <Button
@@ -189,109 +257,116 @@ const JobDetails = () => {
             <Typography variant="h4" fontWeight={700} gutterBottom>
               Applicants
             </Typography>
-            <Box>
-              {jobData?.applicants?.map((applicant) => (
-                <Box
-                  sx={{
-                    backgroundColor: "#030817",
-                    color: "#FFF",
-                    p: 3,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "20px",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Typography variant="h6">{applicant.name}</Typography>
-                    <Box>
-                      <CloudDownloadIcon />
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Box sx={{ display: "flex", gap: "5px" }}>
-                      <EmailIcon />{" "}
-                      <Typography variant="h6">{applicant.email}</Typography>
-                    </Box>
-                    <Box>
-                      Skills{" "}
-                      {applicant.skills.map((skill: string) => (
-                        <Chip
-                          label={skill}
-                          sx={{
-                            bgcolor: "#0a267c",
-                            color: "#FFF",
-                            fontWeight: 700,
-                            textShadow: "0px 0px 8px rgba(255, 255, 255, 0.8)",
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                  <Divider sx={{ backgroundColor: "#444444", my: 2 }} />
+            {!jobData?.applicants?.length ? (
+              <Typography variant="h6" sx={{ color: "red" }} gutterBottom>
+                No One applied
+              </Typography>
+            ) : (
+              <Box>
+                {jobData?.applicants?.map((applicant) => (
                   <Box
                     sx={{
+                      backgroundColor: "#030817",
+                      color: "#FFF",
+                      p: 3,
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexWrap: "wrap",
+                      flexDirection: "column",
+                      gap: "20px",
+                      borderRadius: "10px",
                     }}
                   >
-                    <Box>{formatDate(applicant.appliedAt)}</Box>
-                    <Box>
-                      <FormControl
-                        variant="outlined"
-                        sx={{
-                          minWidth: 200,
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "#fff", // White border color
-                            },
-                            "&:hover fieldset": {
-                              borderColor: "#fff", // White border on hover
-                            },
-                            "&.Mui-focused fieldset": {
-                              borderColor: "#fff", // White border on focus
-                            },
-                          },
-                          "& .MuiInputLabel-root": {
-                            color: "#fff", // White label color
-                          },
-                          "& .MuiInputLabel-root.Mui-focused": {
-                            color: "#fff", // White label on focus
-                          },
-                        }}
-                      >
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                          value={applicationStatus as any}
-                          onChange={(event) =>
-                            handleChangeStatus(event, applicant.id)
-                          }
-                          label="Status"
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography variant="h6">{applicant.name}</Typography>
+                      <Box>
+                        <CloudDownloadIcon />
+                      </Box>
+                    </Box>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Box sx={{ display: "flex", gap: "5px" }}>
+                        <EmailIcon />{" "}
+                        <Typography variant="h6">{applicant.email}</Typography>
+                      </Box>
+                      <Box>
+                        Skills{" "}
+                        {applicant.skills.map((skill: string) => (
+                          <Chip
+                            label={skill}
+                            sx={{
+                              bgcolor: "#0a267c",
+                              color: "#FFF",
+                              fontWeight: 700,
+                              textShadow:
+                                "0px 0px 8px rgba(255, 255, 255, 0.8)",
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                    <Divider sx={{ backgroundColor: "#444444", my: 2 }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <Box>{formatDate(applicant.appliedAt)}</Box>
+                      <Box>
+                        <FormControl
+                          variant="outlined"
                           sx={{
-                            color: "#fff", // Text color
-                            "& .MuiSvgIcon-root": {
-                              color: "#fff", // Dropdown arrow color
+                            minWidth: 200,
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "#fff", // White border color
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "#fff", // White border on hover
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#fff", // White border on focus
+                              },
+                            },
+                            "& .MuiInputLabel-root": {
+                              color: "#fff", // White label color
+                            },
+                            "& .MuiInputLabel-root.Mui-focused": {
+                              color: "#fff", // White label on focus
                             },
                           }}
                         >
-                          {options.map((option) => (
-                            <MenuItem key={option} value={option}>
-                              {option}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                          <InputLabel>Status</InputLabel>
+                          <Select
+                            value={applicationStatus as any}
+                            onChange={(event) =>
+                              handleChangeStatus(event, applicant.id)
+                            }
+                            label="Status"
+                            sx={{
+                              color: "#fff", // Text color
+                              "& .MuiSvgIcon-root": {
+                                color: "#fff", // Dropdown arrow color
+                              },
+                            }}
+                          >
+                            {options.map((option) => (
+                              <MenuItem key={option} value={option}>
+                                {option}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-              ))}
-            </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         )}
       </Stack>

@@ -27,6 +27,7 @@ import { skillsList } from "../../assets/data";
 import { getCompanyDetails } from "../../api/company.api";
 import { createJob } from "../../api/job.api";
 import { useNavigate } from "react-router-dom";
+import MDEditor from "@uiw/react-md-editor";
 
 type FORM_DATA_TYPE = {
   title: string;
@@ -113,11 +114,13 @@ const CreateJobForm = () => {
             value={formData.title}
             handleChange={handleChange}
           />
-          <CustomInput
-            name="description"
-            label="Job Description"
+          <MDEditor
             value={formData.description}
-            handleChange={handleChange}
+            onChange={(val) => {
+              console.log("Value", val);
+
+              setFormData({ ...formData, description: val as string });
+            }}
           />
           <FormControl>
             <Box display="flex" alignItems="center">

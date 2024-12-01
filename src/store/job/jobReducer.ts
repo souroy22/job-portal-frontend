@@ -13,12 +13,21 @@ export type JOB_TYPE = {
   applied: boolean;
 };
 
+interface JOB_DETAILS extends JOB_TYPE {
+  applicantCount: number;
+  status: "open" | "closed";
+  applied: boolean;
+  applicants?: any[];
+}
+
 type JobStateType = {
   jobs: null | JOB_TYPE[];
+  jobData: JOB_DETAILS | null;
 };
 
 const initialState: JobStateType = {
   jobs: null,
+  jobData: null,
 };
 
 export const jobSlice = createSlice({
@@ -31,8 +40,14 @@ export const jobSlice = createSlice({
         jobs: action.payload,
       };
     },
+    setJobData: (state, action: PayloadAction<JOB_DETAILS>) => {
+      return {
+        ...state,
+        jobData: action.payload,
+      };
+    },
   },
 });
 
-export const { setJobs } = jobSlice.actions;
+export const { setJobs, setJobData } = jobSlice.actions;
 export default jobSlice.reducer;

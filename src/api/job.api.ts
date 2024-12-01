@@ -53,3 +53,11 @@ export const getPostedJobs = async () => {
   }
   return res.data;
 };
+
+export const updateJobStatus = async (id: string, status: string) => {
+  const res = await AXIOS.patch(`/job/update/${id}`, { status });
+  if (res.data.error) {
+    return Promise.reject(res.data.error);
+  }
+  return res.data;
+};
