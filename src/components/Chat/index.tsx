@@ -186,8 +186,12 @@ const Chat: FC<{
             display: "flex",
             alignItems: "center",
             padding: "10px",
-            bgcolor: "#FFF",
-            borderTop: "1px solid #E9ECEF", // Divider line
+            bgcolor: "#d9d9d9",
+            borderRadius: "20px",
+            width: "98%",
+            margin: "auto",
+            height: "50px",
+            marginBottom: "10px",
           }}
           onSubmit={(e) => {
             e.preventDefault();
@@ -197,27 +201,30 @@ const Chat: FC<{
           <TextField
             variant="outlined"
             fullWidth
+            autoComplete="off"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
             sx={{
               mr: 1,
-              bgcolor: "#F8F9FA",
-              borderRadius: "20px",
+              bgcolor: "transparent",
+              border: "none",
+              "& fieldset": {
+                border: "none",
+              },
             }}
           />
           <Button
-            variant="contained"
+            variant="text"
             type="submit"
+            disabled={!newMessage.length}
             sx={{
-              bgcolor: "#0D6EFD", // Blue color for send button
-              color: "#FFF",
               "&:hover": {
-                bgcolor: "#0B5ED7",
+                bgcolor: "transparent",
               },
             }}
           >
-            <SendIcon />
+            <SendIcon sx={{ color: !newMessage.length ? "gray" : "" }} />
           </Button>
         </Box>
       </Box>

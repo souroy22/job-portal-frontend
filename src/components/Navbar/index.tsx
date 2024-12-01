@@ -11,7 +11,7 @@ import {
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import classes from "./style.module.css";
-import LOGO from "../../assets/images/9166962.png";
+import LOGO from "../../assets/images/Screenshot_2024-12-02_005811-removebg-preview.png";
 import { customLocalStorage } from "../../utils/customLocalStorage";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,7 +37,7 @@ const Navbar = () => {
   };
 
   const handleProfileClick = () => {
-    console.log("Profile clicked");
+    navigate("/profile");
     handleMenuClose();
   };
 

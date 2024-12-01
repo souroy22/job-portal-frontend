@@ -5,7 +5,8 @@ import { Box } from "@mui/material";
 import classes from "./style.module.css";
 import JobSeekerProfileForm from "../../components/JobSeekerProfileForm";
 import CompanyProfileForm from "../../components/CompanyProfileForm";
-import CreateJobForm from "../../components/CreateJobForm";
+import RecruiterProfile from "../../components/RecruiterProfile";
+import CandidateProfile from "../../components/CandidateProfile";
 
 const Profile = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
@@ -14,14 +15,23 @@ const Profile = () => {
 
   return (
     <Box className={classes.profileContainer}>
-      {memoizedUser?.role === "job_seeker" ? (
+      {memoizedUser?.finishedProfile ? (
+        memoizedUser?.role === "job_seeker" ? (
+          <Box>
+            <CandidateProfile />
+          </Box>
+        ) : (
+          <Box>
+            <RecruiterProfile />
+          </Box>
+        )
+      ) : memoizedUser?.role === "job_seeker" ? (
         <Box>
           <JobSeekerProfileForm />
         </Box>
       ) : (
         <Box>
           <CompanyProfileForm />
-          {/* <CreateJobForm /> */}
         </Box>
       )}
     </Box>

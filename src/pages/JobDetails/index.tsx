@@ -3,7 +3,6 @@ import {
   Button,
   Chip,
   CircularProgress,
-  ClickAwayListener,
   Container,
   Divider,
   FormControl,
@@ -157,14 +156,12 @@ const JobDetails = () => {
           />
         )}
         {open && (
-          <ClickAwayListener onClickAway={() => setOpen(false)}>
-            <Chat
-              otherUserId={otherUserId}
-              userId={user?.id!}
-              receiverDetails={receiverDetails}
-              onClose={closeChat}
-            />
-          </ClickAwayListener>
+          <Chat
+            otherUserId={otherUserId}
+            userId={user?.id!}
+            receiverDetails={receiverDetails}
+            onClose={closeChat}
+          />
         )}
       </Box>
       <Stack spacing={3}>
@@ -414,20 +411,38 @@ const JobDetails = () => {
                         <EmailIcon />{" "}
                         <Typography variant="h6">{applicant.email}</Typography>
                       </Box>
-                      <Box>
-                        Skills{" "}
-                        {applicant.skills.map((skill: string) => (
-                          <Chip
-                            label={skill}
+                      <Box
+                        sx={{
+                          width: "60%",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <Box>
+                          <Typography variant="h6" gutterBottom textAlign="end">
+                            Skills
+                          </Typography>
+                          <Box
                             sx={{
-                              bgcolor: "#0a267c",
-                              color: "#FFF",
-                              fontWeight: 700,
-                              textShadow:
-                                "0px 0px 8px rgba(255, 255, 255, 0.8)",
+                              display: "flex",
+                              gap: "10px",
+                              flexWrap: "wrap",
                             }}
-                          />
-                        ))}
+                          >
+                            {applicant.skills.map((skill: string) => (
+                              <Chip
+                                label={skill}
+                                sx={{
+                                  bgcolor: "#0a267c",
+                                  color: "#FFF",
+                                  fontWeight: 700,
+                                  textShadow:
+                                    "0px 0px 8px rgba(255, 255, 255, 0.8)",
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </Box>
                       </Box>
                     </Box>
                     <Divider sx={{ backgroundColor: "#444444", my: 2 }} />

@@ -22,9 +22,11 @@ import CustomInput from "../CustomInput";
 import { indianCities, skillsList } from "../../assets/data";
 import FileUpload from "../FileUpload";
 import AXIOS from "../../configs/axios.confog";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setGlobalLoading } from "../../store/global/globalReducer";
 import { notification } from "../../configs/notification.config";
+import { setUserData } from "../../store/user/userReducer";
+import { RootState } from "../../store/store";
 
 interface Experience {
   company: string;
@@ -70,6 +72,8 @@ const JobSeekerProfileForm: FC = () => {
   const [expType, setExpType] = useState<string>("fresher");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const { user } = useSelector((state: RootState) => state.userReducer);
 
   const dispatch = useDispatch();
 
@@ -134,6 +138,7 @@ const JobSeekerProfileForm: FC = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      dispatch(setUserData({ ...(user as any), finishedProfile: true }));
       notification.success("Profile created successfully");
     } catch (error) {
       console.error("An error occurred:", error);

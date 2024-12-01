@@ -143,7 +143,7 @@ const CompanyProfileForm = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Location Preferences"
+                label="Company Locations"
                 variant="outlined"
                 placeholder="Add skills"
                 fullWidth
