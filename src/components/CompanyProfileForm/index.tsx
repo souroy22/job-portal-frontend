@@ -80,7 +80,6 @@ const CompanyProfileForm = () => {
       const newUser = JSON.parse(JSON.stringify(user));
       dispatch(setUserData({ ...newUser, finishedProfile: true }));
       notification.success("Profile created successfully");
-      navigate("/all-jobs");
     } catch (error) {
       console.error("An error occurred:", error);
     } finally {
