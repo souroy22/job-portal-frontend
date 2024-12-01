@@ -54,7 +54,7 @@ const Chat: FC<{
     onLoad();
     return () => {
       socket.off("receive-message");
-      socket.emit("receive-message");
+      socket.emit("disconnect", { userId });
     };
   }, [userId, otherUserId]);
 

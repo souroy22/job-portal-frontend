@@ -39,7 +39,7 @@ const PostedJobs = () => {
         marginBottom="20px"
         className={classes.textGlow}
       >
-        Recommended Jobs
+        Posted Jobs
       </Typography>
       <Box className={classes.jobListContainer}>
         {jobs?.map((job) => (
