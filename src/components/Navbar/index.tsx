@@ -76,6 +76,13 @@ const Navbar = () => {
             </Button>
           </Link>
         )}
+        {!user && (
+          <Link to="/signin">
+            <Button variant="outlined" className={classes.navbarBtn}>
+              Login
+            </Button>
+          </Link>
+        )}
         {user?.role === "job_seeker" && (
           <Link to="/recommended-jobs">
             <Button variant="outlined" className={classes.navbarBtn}>

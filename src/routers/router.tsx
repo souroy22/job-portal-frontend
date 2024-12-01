@@ -36,10 +36,10 @@ const RouterComponent = () => {
             <Route path="/profile" element={<Profile />} />
             <Route element={<CompletedProfileStep />}>
               <Route path="/" element={<HomePage />} />
+              <Route path="/job-details/:jobId" element={<JobDetails />} />
               <Route element={<CandidateRoute />}>
                 <Route path="/all-jobs" element={<Jobs />} />
                 <Route path="/recommended-jobs" element={<RecommendedJobs />} />
-                <Route path="/job-details/:jobId" element={<JobDetails />} />
               </Route>
               <Route element={<RecuiterRoute />}>
                 <Route path="/create-job" element={<CreateNewJob />} />

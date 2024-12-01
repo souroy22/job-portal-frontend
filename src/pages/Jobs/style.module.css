@@ -11,10 +11,9 @@
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
-  /* justify-content: space-between; */
   padding: 20px 0;
   overflow-y: auto;
-  height: calc(100svh - 300px);
+  height: calc(100svh - 340px);
 }
 
 .jobListContainer::-webkit-scrollbar {

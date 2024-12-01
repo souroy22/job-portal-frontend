@@ -44,7 +44,16 @@ const Login = () => {
     const userData = await login(data);
     customLocalStorage.setData("token", userData.token);
     dispatch(setUserData(userData.user));
-    navigate("/");
+    const isFirstTime = customLocalStorage.getData("isFirstTime");
+    if (!isFirstTime) {
+      customLocalStorage.setData("isFirstTime", "false");
+      navigate("/");
+    } else {
+      const url =
+        userData.user?.role === "job_seeker" ? "/all-jobs" : "/posted-jobs";
+      console.log("user?.role", url);
+      navigate(url);
+    }
   });
 
   return (

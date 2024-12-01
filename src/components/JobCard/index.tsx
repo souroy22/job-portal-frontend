@@ -31,6 +31,7 @@ const JobCard: React.FC<JobCardProps> = ({
     <Card
       sx={{
         width: 345,
+        height: "300px",
         backgroundColor: "#030817",
         color: "#ffffff",
         borderRadius: "10px",
@@ -84,11 +85,13 @@ const JobCard: React.FC<JobCardProps> = ({
         <Link to={`/job-details/${jobId}`}>
           <Button
             variant="contained"
-            fullWidth
             sx={{
-              mt: 2,
+              position: "absolute",
+              bottom: "20px",
               backgroundColor: "#1B2637",
               color: "#ffffff",
+              width: "90%",
+              margin: "auto",
               "&:hover": {
                 backgroundColor: "#005FCC",
               },

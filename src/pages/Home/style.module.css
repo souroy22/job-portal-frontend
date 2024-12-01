@@ -1,0 +1,17 @@
+.homePage {
+  background-image: url("../../assets/images/undraw_job_offers_re_634p.svg");
+  background-repeat: no-repeat;
+  z-index: 99999;
+  height: 100svh;
+  overflow: hidden;
+}
+
+@keyframes moveRight {
+  0%,
+  100% {
+    transform: translateX(0); /* Start and end at the original position */
+  }
+  50% {
+    transform: translateX(5px); /* Move 5px to the right */
+  }
+}
