@@ -9,7 +9,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
   Stack,
   Step,
   StepLabel,
@@ -19,7 +18,7 @@ import {
 import { useEffect, useState } from "react";
 import { setJobData } from "../../store/job/jobReducer";
 import { getJobDetails, updateJobStatus } from "../../api/job.api";
-import { json, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import BlindsIcon from "@mui/icons-material/Blinds";
@@ -35,6 +34,8 @@ import { formatDate } from "../../utils/formatDate";
 import { setGlobalLoading } from "../../store/global/globalReducer";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import { steps } from "../../assets/data";
+import ChatIcon from "@mui/icons-material/Chat";
+import Chat from "../../components/Chat";
 
 const options = ["Applied", "In Review", "Shortlisted", "Rejected", "Accepted"];
 const applicationStatusOptions = [
@@ -44,10 +45,9 @@ const applicationStatusOptions = [
 
 const JobDetails = () => {
   const [loading, setLoading] = useState(false);
-  const [applicationStatus, setApplicationStatus] = useState<null | string>(
-    null
-  );
   const [jobStatus, setJobStatus] = useState("open");
+  const [open, setOpen] = useState(false);
+  const [otherUserId, setOtherUserId] = useState("");
 
   const { user } = useSelector((state: RootState) => state.userReducer);
   const { jobData } = useSelector((state: RootState) => state.jobReducer);
@@ -59,7 +59,6 @@ const JobDetails = () => {
     if (jobId) {
       const jobDetails = await getJobDetails(jobId);
       dispatch(setJobData(jobDetails));
-      setApplicationStatus(jobDetails.applicants[0]?.status);
       setJobStatus(jobDetails.status);
     }
   };
@@ -76,7 +75,7 @@ const JobDetails = () => {
           ...jobData,
           applied: true,
           applicantCount: jobData.applicantCount + 1,
-          applicationStatus: "Applied" as any,
+          applicationStatus: "Applied",
         })
       );
       setLoading(false);
@@ -120,6 +119,30 @@ const JobDetails = () => {
       sx={{ color: "#FFF", p: 3 }}
       className={classes.jobDetailsContainer}
     >
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: "30px",
+          right: "70px",
+          zIndex: "999999 !important",
+        }}
+      >
+        {!open && user?.role === "job_seeker" && (
+          <ChatIcon
+            sx={{
+              width: "50px !important",
+              height: "50px !important",
+              color: "orange",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setOtherUserId(jobData?.recruiterId!);
+              setOpen(true);
+            }}
+          />
+        )}
+        {open && <Chat otherUserId={otherUserId} userId={user?.id!} />}
+      </Box>
       <Stack spacing={3}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography variant="h3" fontWeight={700}>
@@ -330,8 +353,24 @@ const JobDetails = () => {
                       flexDirection: "column",
                       gap: "20px",
                       borderRadius: "10px",
+                      position: "relative",
                     }}
                   >
+                    <ChatIcon
+                      sx={{
+                        width: "50px !important",
+                        height: "50px !important",
+                        color: "orange",
+                        cursor: "pointer",
+                        position: "absolute",
+                        top: "10px",
+                        right: "100px",
+                      }}
+                      onClick={() => {
+                        setOtherUserId(applicant.id);
+                        setOpen(true);
+                      }}
+                    />
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >

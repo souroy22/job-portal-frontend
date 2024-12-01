@@ -5,6 +5,7 @@ export type USER_TYPE = {
   email: string;
   role: null | "job_seeker" | "recruiter";
   finishedProfile: boolean;
+  id: string;
 };
 
 type UserStateType = {

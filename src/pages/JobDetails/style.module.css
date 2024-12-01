@@ -5,3 +5,7 @@
   align-items: center;
   gap: 5px;
 }
+
+.jobDetailsContainer {
+  position: relative;
+}
