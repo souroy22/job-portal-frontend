@@ -8,6 +8,7 @@ import SelectedRoleRoute from "./SelectedRoleRoute";
 import CompletedProfileStep from "./CompletedProfileStep";
 import RecuiterRoute from "./RecruiterRoute";
 import CandidateRoute from "./CandidateRoute";
+import AppliedJobs from "../pages/AppliedJobs";
 
 // Lazy load pages
 const Login = lazy(() => import("../pages/Login"));
@@ -39,6 +40,7 @@ const RouterComponent = () => {
               <Route path="/job-details/:jobId" element={<JobDetails />} />
               <Route element={<CandidateRoute />}>
                 <Route path="/all-jobs" element={<Jobs />} />
+                <Route path="/applied-jobs" element={<AppliedJobs />} />
                 <Route path="/recommended-jobs" element={<RecommendedJobs />} />
               </Route>
               <Route element={<RecuiterRoute />}>

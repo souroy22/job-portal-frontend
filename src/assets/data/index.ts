@@ -290,3 +290,11 @@ export const jobTypes = [
   { label: "Part Time", value: "Part-time" },
   { label: "Contract", value: "Contract" },
 ];
+
+export const steps = [
+  "Applied",
+  "In Review",
+  "Shortlisted",
+  "Rejected",
+  "Accepted",
+];

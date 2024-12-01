@@ -11,12 +11,15 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
+  Step,
+  StepLabel,
+  Stepper,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { setJobData } from "../../store/job/jobReducer";
 import { getJobDetails, updateJobStatus } from "../../api/job.api";
-import { useParams } from "react-router-dom";
+import { json, useParams } from "react-router-dom";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import BlindsIcon from "@mui/icons-material/Blinds";
@@ -31,6 +34,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import { formatDate } from "../../utils/formatDate";
 import { setGlobalLoading } from "../../store/global/globalReducer";
 import MarkdownPreview from "@uiw/react-markdown-preview";
+import { steps } from "../../assets/data";
 
 const options = ["Applied", "In Review", "Shortlisted", "Rejected", "Accepted"];
 const applicationStatusOptions = [
@@ -67,18 +71,29 @@ const JobDetails = () => {
     setLoading(true);
     if (jobData) {
       await applyJob(jobData.id);
-      dispatch(setJobData({ ...jobData, applied: true }));
+      dispatch(
+        setJobData({
+          ...jobData,
+          applied: true,
+          applicantCount: jobData.applicantCount + 1,
+          applicationStatus: "Applied" as any,
+        })
+      );
       setLoading(false);
       notification.success("Successfully applied");
     }
   });
 
   const handleChangeStatus = handleAsync(
-    async (event: SelectChangeEvent<{ value: null | string }>, id: string) => {
+    async (value: string, id: string, index: number) => {
       dispatch(setGlobalLoading(true));
-      setApplicationStatus(event.target.value as string);
       if (jobData) {
-        await changeStatus(jobData.id, id, event.target.value as string);
+        await changeStatus(jobData.id, id, value);
+      }
+      if (jobData?.applicants?.length) {
+        const applicants = JSON.parse(JSON.stringify(jobData?.applicants));
+        applicants[index].status = value;
+        dispatch(setJobData({ ...jobData, applicants }));
       }
       notification.success("Status updated successfully");
     },
@@ -155,13 +170,13 @@ const JobDetails = () => {
                   },
                 }}
               >
-                <InputLabel>Status</InputLabel>
+                <InputLabel shrink>Status</InputLabel>
                 <Select
                   value={jobStatus as any}
                   onChange={(event) =>
                     handleChangeJobStatus(event.target.value)
                   }
-                  label="Status"
+                  // label="Status"
                   sx={{
                     color: "#fff",
                     "& .MuiSvgIcon-root": {
@@ -210,17 +225,57 @@ const JobDetails = () => {
             ))}
           </Box>
         </Box>
+        {user?.role === "job_seeker" && jobData?.applied && (
+          <Box sx={{ width: "100%" }}>
+            <Stepper>
+              {steps.map((label, index) => {
+                const currentStepIndex = steps.indexOf(
+                  jobData?.applicationStatus ?? ""
+                );
+                const isCompleted = index < currentStepIndex;
+                const isCurrent = index === currentStepIndex;
+
+                return (
+                  <Step key={label} active={isCurrent}>
+                    <StepLabel
+                      sx={{
+                        color: isCompleted
+                          ? "green !important"
+                          : isCurrent
+                          ? "orange !important"
+                          : "gray !important",
+                        "& .MuiStepLabel-label": {
+                          color: isCompleted
+                            ? "green !important"
+                            : isCurrent
+                            ? "orange !important"
+                            : "gray !important",
+                          fontWeight: isCurrent
+                            ? "bold !important"
+                            : "normal !important",
+                        },
+                        "& .MuiStepIcon-root": {
+                          color: isCompleted
+                            ? "green !important"
+                            : isCurrent
+                            ? "orange !important"
+                            : "gray !important", // Change step icon color
+                        },
+                      }}
+                    >
+                      {label}
+                    </StepLabel>
+                  </Step>
+                );
+              })}
+            </Stepper>
+          </Box>
+        )}
+
         <Box>
           <Typography variant="h4" fontWeight={600} gutterBottom>
             Job Description
           </Typography>
-          {/* <Typography variant="h6" component="p" fontWeight={400}>
-            {jobData?.description}
-          </Typography> */}
-          {/* <ReactMarkdown
-            children={jobData?.description}
-            remarkPlugins={[remarkGfm]} // Enable GitHub Flavored Markdown (GFM)
-          /> */}
           <MarkdownPreview
             source={jobData?.description}
             style={{ padding: 16 }}
@@ -262,8 +317,10 @@ const JobDetails = () => {
                 No One applied
               </Typography>
             ) : (
-              <Box>
-                {jobData?.applicants?.map((applicant) => (
+              <Box
+                sx={{ display: "flex", flexDirection: "column", gap: "30px" }}
+              >
+                {jobData?.applicants?.map((applicant, index) => (
                   <Box
                     sx={{
                       backgroundColor: "#030817",
@@ -340,13 +397,9 @@ const JobDetails = () => {
                             },
                           }}
                         >
-                          <InputLabel>Status</InputLabel>
+                          <InputLabel shrink>Status</InputLabel>
                           <Select
-                            value={applicationStatus as any}
-                            onChange={(event) =>
-                              handleChangeStatus(event, applicant.id)
-                            }
-                            label="Status"
+                            value={applicant.status}
                             sx={{
                               color: "#fff", // Text color
                               "& .MuiSvgIcon-root": {
@@ -355,7 +408,18 @@ const JobDetails = () => {
                             }}
                           >
                             {options.map((option) => (
-                              <MenuItem key={option} value={option}>
+                              <MenuItem
+                                key={option}
+                                value={option}
+                                selected={option === applicant.status}
+                                onClick={() =>
+                                  handleChangeStatus(
+                                    option,
+                                    applicant.id,
+                                    index
+                                  )
+                                }
+                              >
                                 {option}
                               </MenuItem>
                             ))}

@@ -18,6 +18,7 @@ interface JOB_DETAILS extends JOB_TYPE {
   status: "open" | "closed";
   applied: boolean;
   applicants?: any[];
+  applicationStatus: "string";
 }
 
 type JobStateType = {

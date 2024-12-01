@@ -19,6 +19,7 @@ import AXIOS from "../../configs/axios.confog";
 import { notification } from "../../configs/notification.config";
 import { setUserData } from "../../store/user/userReducer";
 import { RootState } from "../../store/store";
+import { useNavigate } from "react-router-dom";
 
 type FORM_DATA_TYPE = {
   name: string;
@@ -42,6 +43,7 @@ const CompanyProfileForm = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -80,6 +82,7 @@ const CompanyProfileForm = () => {
       const newUser = JSON.parse(JSON.stringify(user));
       dispatch(setUserData({ ...newUser, finishedProfile: true }));
       notification.success("Profile created successfully");
+      navigate("/all-jobs");
     } catch (error) {
       console.error("An error occurred:", error);
     } finally {

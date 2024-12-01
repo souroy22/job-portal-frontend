@@ -41,11 +41,15 @@ const Navbar = () => {
     handleMenuClose();
   };
 
+  const handleAppliedJobsClick = () => {
+    navigate("/applied-jobs");
+    handleMenuClose();
+  };
+
   const handleLogoutClick = () => {
     customLocalStorage.deleteData("token");
     dispatch(setUserData(null));
     navigate("/signin");
-    handleMenuClose();
   };
 
   const hasNotifications = true;
@@ -163,6 +167,14 @@ const Navbar = () => {
             </ListItemIcon>
             <Typography variant="inherit">Profile</Typography>
           </MenuItem>
+          {user?.role === "job_seeker" && (
+            <MenuItem onClick={handleAppliedJobsClick}>
+              <ListItemIcon>
+                <AccountCircleIcon fontSize="small" />
+              </ListItemIcon>
+              <Typography variant="inherit">Applied Jobs</Typography>
+            </MenuItem>
+          )}
           <MenuItem onClick={handleLogoutClick}>
             <ListItemIcon>
               <LogoutIcon fontSize="small" />
