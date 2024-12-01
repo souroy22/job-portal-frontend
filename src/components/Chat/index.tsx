@@ -6,10 +6,12 @@ import {
   Button,
   List,
   ListItem,
-  ListItemText,
+  Avatar,
+  Typography,
 } from "@mui/material";
 import AXIOS from "../../configs/axios.confog";
 import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
 
 const socket: Socket = io(
   import.meta.env.VITE_HOST === "localhost"
@@ -23,10 +25,12 @@ interface Message {
   createdAt: string;
 }
 
-const Chat: FC<{ userId: string; otherUserId: string }> = ({
-  userId,
-  otherUserId,
-}) => {
+const Chat: FC<{
+  userId: string;
+  otherUserId: string;
+  receiverDetails: { name: string; email: string };
+  onClose: () => void;
+}> = ({ userId, otherUserId, receiverDetails, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
 
@@ -45,9 +49,6 @@ const Chat: FC<{ userId: string; otherUserId: string }> = ({
     );
     setMessages(allMessages.data);
   };
-
-  console.log("userId", userId);
-  console.log("otherUserId", otherUserId);
 
   useEffect(() => {
     onLoad();
@@ -84,77 +85,141 @@ const Chat: FC<{ userId: string; otherUserId: string }> = ({
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        height: "300px",
-        bgcolor: "#FFF",
-        color: "gray",
-        zIndex: "999999 !important",
-      }}
-    >
-      <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
-        <List>
-          {messages?.length ? (
-            messages.map((msg, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  justifyContent:
-                    msg.sender === userId ? "flex-end" : "flex-start",
-                }}
-              >
-                <ListItemText
-                  primary={msg.message}
-                  sx={{
-                    textAlign: msg.sender === userId ? "right" : "left",
-                    color: msg.sender === userId ? "green" : "blue",
-                  }}
-                />
-              </ListItem>
-            ))
-          ) : (
-            <Box
-              sx={{
-                height: "200px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              No message
-            </Box>
-          )}
-        </List>
-      </Box>
-      <Box
-        component="form"
+    <Box sx={{ position: "relative" }}>
+      <CloseIcon
         sx={{
-          display: "flex",
-          alignItems: "center",
-          padding: "10px",
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          cursor: "pointer",
         }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendMessage();
+        onClick={onClose}
+      />
+      <Box
+        sx={{
+          width: "100%",
+          height: "80px",
+          backgroundColor: "orange",
+          borderRadius: "10px 10px 0 0",
         }}
       >
-        <TextField
-          variant="outlined"
-          fullWidth
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
+        <Box
           sx={{
-            mr: 1,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            padding: "10px",
+            gap: "10px",
           }}
-        />
-        <Button variant="text" type="submit">
-          <SendIcon />
-        </Button>
+        >
+          <Avatar sx={{ height: "55px", width: "55px" }} />
+          <Box>
+            <Typography variant="h6" fontWeight={600}>
+              {receiverDetails.name}
+            </Typography>
+            <Typography sx={{ fontSize: "14px" }}>
+              {receiverDetails.email}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          height: "500px",
+          bgcolor: "#F5F7FB",
+          color: "gray",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ flexGrow: 1, overflowY: "auto", padding: "10px" }}>
+          <List>
+            {messages?.length ? (
+              messages.map((msg, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    justifyContent:
+                      msg.sender === userId ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      maxWidth: "70%",
+                      padding: "10px 15px",
+                      borderRadius:
+                        msg.sender === userId
+                          ? "20px 0 20px 20px"
+                          : "20px 20px 20px 0",
+                      bgcolor: msg.sender === userId ? "#D1E7DD" : "#FFF",
+                      color: "#212529",
+                      boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+                      textAlign: msg.sender === userId ? "right" : "left",
+                    }}
+                  >
+                    {msg.message}
+                  </Box>
+                </ListItem>
+              ))
+            ) : (
+              <Box
+                sx={{
+                  height: "200px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  color: "#6C757D",
+                }}
+              >
+                No messages yet
+              </Box>
+            )}
+          </List>
+        </Box>
+        <Box
+          component="form"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px",
+            bgcolor: "#FFF",
+            borderTop: "1px solid #E9ECEF", // Divider line
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSendMessage();
+          }}
+        >
+          <TextField
+            variant="outlined"
+            fullWidth
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+            sx={{
+              mr: 1,
+              bgcolor: "#F8F9FA",
+              borderRadius: "20px",
+            }}
+          />
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{
+              bgcolor: "#0D6EFD", // Blue color for send button
+              color: "#FFF",
+              "&:hover": {
+                bgcolor: "#0B5ED7",
+              },
+            }}
+          >
+            <SendIcon />
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

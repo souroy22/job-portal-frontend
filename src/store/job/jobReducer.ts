@@ -20,6 +20,7 @@ interface JOB_DETAILS extends JOB_TYPE {
   applicants?: any[];
   applicationStatus: string;
   recruiterId?: string;
+  recruiterDetails: { name: string; email: string };
 }
 
 type JobStateType = {

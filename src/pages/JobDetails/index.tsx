@@ -3,6 +3,7 @@ import {
   Button,
   Chip,
   CircularProgress,
+  ClickAwayListener,
   Container,
   Divider,
   FormControl,
@@ -48,6 +49,10 @@ const JobDetails = () => {
   const [jobStatus, setJobStatus] = useState("open");
   const [open, setOpen] = useState(false);
   const [otherUserId, setOtherUserId] = useState("");
+  const [receiverDetails, setReceiverDetails] = useState({
+    name: "",
+    email: "",
+  });
 
   const { user } = useSelector((state: RootState) => state.userReducer);
   const { jobData } = useSelector((state: RootState) => state.jobReducer);
@@ -109,6 +114,12 @@ const JobDetails = () => {
     () => dispatch(setGlobalLoading(false))
   );
 
+  const closeChat = () => {
+    setOpen(false);
+    setReceiverDetails({ name: "", email: "" });
+    setOtherUserId("");
+  };
+
   useEffect(() => {
     onLoad();
   }, []);
@@ -136,12 +147,25 @@ const JobDetails = () => {
               cursor: "pointer",
             }}
             onClick={() => {
+              setReceiverDetails({
+                name: jobData?.recruiterDetails.name!,
+                email: jobData?.recruiterDetails.email!,
+              });
               setOtherUserId(jobData?.recruiterId!);
               setOpen(true);
             }}
           />
         )}
-        {open && <Chat otherUserId={otherUserId} userId={user?.id!} />}
+        {open && (
+          <ClickAwayListener onClickAway={() => setOpen(false)}>
+            <Chat
+              otherUserId={otherUserId}
+              userId={user?.id!}
+              receiverDetails={receiverDetails}
+              onClose={closeChat}
+            />
+          </ClickAwayListener>
+        )}
       </Box>
       <Stack spacing={3}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -358,15 +382,19 @@ const JobDetails = () => {
                   >
                     <ChatIcon
                       sx={{
-                        width: "50px !important",
-                        height: "50px !important",
-                        color: "orange",
+                        width: "30px !important",
+                        height: "30px !important",
+                        color: "white",
                         cursor: "pointer",
                         position: "absolute",
-                        top: "10px",
+                        top: "20px",
                         right: "100px",
                       }}
                       onClick={() => {
+                        setReceiverDetails({
+                          name: applicant.name,
+                          email: applicant.email,
+                        });
                         setOtherUserId(applicant.id);
                         setOpen(true);
                       }}
