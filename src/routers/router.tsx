@@ -8,7 +8,6 @@ import SelectedRoleRoute from "./SelectedRoleRoute";
 import CompletedProfileStep from "./CompletedProfileStep";
 import RecuiterRoute from "./RecruiterRoute";
 import CandidateRoute from "./CandidateRoute";
-import AppliedJobs from "../pages/AppliedJobs";
 
 // Lazy load pages
 const Login = lazy(() => import("../pages/Login"));
@@ -23,6 +22,7 @@ const JobDetails = lazy(() => import("../pages/JobDetails"));
 const RecommendedJobs = lazy(() => import("../pages/RecommendedJobs"));
 const PostedJobs = lazy(() => import("../pages/PostedJobs"));
 const HomePage = lazy(() => import("../pages/Home"));
+const AppliedJobs = lazy(() => import("../pages/AppliedJobs"));
 
 const RouterComponent = () => {
   return (
