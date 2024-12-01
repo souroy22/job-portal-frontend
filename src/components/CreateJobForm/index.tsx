@@ -1,8 +1,6 @@
 import {
-  Autocomplete,
   Box,
   Button,
-  Chip,
   CircularProgress,
   Container,
   FormControl,
@@ -11,7 +9,6 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import classes from "./style.module.css";
@@ -28,6 +25,7 @@ import { getCompanyDetails } from "../../api/company.api";
 import { createJob } from "../../api/job.api";
 import { useNavigate } from "react-router-dom";
 import MDEditor from "@uiw/react-md-editor";
+import CustomAutocomplete, { OPTION_TYPE } from "../CustomAutoComplete";
 
 type FORM_DATA_TYPE = {
   title: string;
@@ -59,8 +57,11 @@ const CreateJobForm = () => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  const handleSkillsChange = (_: any, newValue: string[]) => {
-    setFormData({ ...formData, skills: newValue });
+  const handleSkillsChange = (
+    _: any,
+    newValue: OPTION_TYPE | OPTION_TYPE[] | null
+  ) => {
+    setFormData({ ...formData, skills: newValue as string[] });
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -78,9 +79,9 @@ const CreateJobForm = () => {
 
   const handleLocationSelect = (
     _: SyntheticEvent<Element, Event>,
-    value: string | null
+    value: OPTION_TYPE | OPTION_TYPE[] | null
   ) => {
-    setFormData({ ...formData, location: value ?? "" });
+    setFormData({ ...formData, location: (value as string) ?? "" });
   };
 
   const onLoad = async () => {
@@ -209,134 +210,23 @@ const CreateJobForm = () => {
             value={formData.salary}
             handleChange={handleChange}
           />
-          <Autocomplete
+          <CustomAutocomplete
             id="location-input"
             options={locationOptions}
             value={formData.location}
             onChange={handleLocationSelect}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Job Location"
-                variant="outlined"
-                placeholder="Job Location"
-                fullWidth
-                sx={{
-                  "& .MuiInputBase-input": {
-                    color: "#FFF", // Text color
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "gray", // Default border color, transparent when disabled
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#1976D2", // Border color on hover, transparent when disabled
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#1976D2", // Border color when focused, transparent when disabled
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "gray", // Placeholder color
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#1976D2", // Placeholder color when focused
-                  },
-                  "& input[type='date']::-webkit-datetime-edit-text": {
-                    display: "none", // Hide the default 'dd/mm/yyyy' text
-                    opacity: 0,
-                  },
-                  "& input[type='date']::-webkit-datetime-edit": {
-                    color: "transparent", // Makes text completely invisible
-                  },
-                  "& input[type='date']::-webkit-calendar-picker-indicator": {
-                    color: "#1976D2", // Calendar icon color
-                    filter:
-                      "invert(40%) sepia(60%) saturate(500%) hue-rotate(200deg)", // Custom color effect
-                    cursor: "pointer", // Changes the cursor to pointer
-                  },
-                }}
-              />
-            )}
-            renderTags={(value, getTagProps) =>
-              value.map((option: string, index: number) => (
-                <Chip
-                  label={option}
-                  {...getTagProps({ index })}
-                  color="primary"
-                  sx={{
-                    margin: "4px",
-                    borderColor: "gray", // Chip border color
-                  }}
-                />
-              ))
-            }
+            label="Job Location"
+            multiple={false}
+            placeholder="Job Location"
           />
-
-          <Autocomplete
-            multiple
+          <CustomAutocomplete
             id="skills-input"
             options={skillsList}
             value={formData.skills}
             onChange={handleSkillsChange}
-            disableCloseOnSelect
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Skills"
-                variant="outlined"
-                placeholder="Add skills"
-                fullWidth
-                sx={{
-                  "& .MuiInputBase-input": {
-                    color: "#FFF", // Text color
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "gray", // Default border color, transparent when disabled
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#1976D2", // Border color on hover, transparent when disabled
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#1976D2", // Border color when focused, transparent when disabled
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "gray", // Placeholder color
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#1976D2", // Placeholder color when focused
-                  },
-                  "& input[type='date']::-webkit-datetime-edit-text": {
-                    display: "none", // Hide the default 'dd/mm/yyyy' text
-                    opacity: 0,
-                  },
-                  "& input[type='date']::-webkit-datetime-edit": {
-                    color: "transparent", // Makes text completely invisible
-                  },
-                  "& input[type='date']::-webkit-calendar-picker-indicator": {
-                    color: "#1976D2", // Calendar icon color
-                    filter:
-                      "invert(40%) sepia(60%) saturate(500%) hue-rotate(200deg)", // Custom color effect
-                    cursor: "pointer", // Changes the cursor to pointer
-                  },
-                }}
-              />
-            )}
-            renderTags={(value, getTagProps) =>
-              value.map((option: string, index: number) => (
-                <Chip
-                  label={option}
-                  {...getTagProps({ index })}
-                  color="primary"
-                  sx={{
-                    margin: "4px",
-                    borderColor: "gray", // Chip border color
-                  }}
-                />
-              ))
-            }
+            label="Skills"
+            multiple
+            placeholder="Add skills"
           />
           <Button
             variant="contained"

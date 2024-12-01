@@ -11,9 +11,6 @@ import {
   FormLabel,
   RadioGroup,
   Radio,
-  Autocomplete,
-  TextField,
-  Chip,
   CircularProgress,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -27,6 +24,7 @@ import { setGlobalLoading } from "../../store/global/globalReducer";
 import { notification } from "../../configs/notification.config";
 import { setUserData } from "../../store/user/userReducer";
 import { RootState } from "../../store/store";
+import CustomAutocomplete, { OPTION_TYPE } from "../CustomAutoComplete";
 
 interface Experience {
   company: string;
@@ -81,12 +79,18 @@ const JobSeekerProfileForm: FC = () => {
     setExperience([...experience, newExp]);
   };
 
-  const handleSkillsChange = (_: any, newValue: string[]) => {
-    setSkills(newValue);
+  const handleSkillsChange = (
+    _: any,
+    newValue: OPTION_TYPE | OPTION_TYPE[] | null
+  ) => {
+    setSkills(newValue as string[]);
   };
 
-  const handleLocationSelect = (_: any, newValue: string[]) => {
-    setPreferences({ ...preferences, location: newValue });
+  const handleLocationSelect = (
+    _: any,
+    newValue: OPTION_TYPE | OPTION_TYPE[] | null
+  ) => {
+    setPreferences({ ...preferences, location: newValue as string[] });
   };
 
   const handleAddEducation = () => {
@@ -186,71 +190,16 @@ const JobSeekerProfileForm: FC = () => {
       <form onSubmit={handleSubmit}>
         <Stack spacing={3} padding={3}>
           {/* Skills */}
-          <Autocomplete
-            multiple
+          <CustomAutocomplete
             id="skills-input"
             options={skillsList}
             value={skills}
             onChange={handleSkillsChange}
-            disableCloseOnSelect
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Skills"
-                variant="outlined"
-                placeholder="Add skills"
-                fullWidth
-                sx={{
-                  "& .MuiInputBase-input": {
-                    color: "#FFF", // Text color
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "gray", // Default border color, transparent when disabled
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#1976D2", // Border color on hover, transparent when disabled
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#1976D2", // Border color when focused, transparent when disabled
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "gray", // Placeholder color
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#1976D2", // Placeholder color when focused
-                  },
-                  "& input[type='date']::-webkit-datetime-edit-text": {
-                    display: "none", // Hide the default 'dd/mm/yyyy' text
-                    opacity: 0,
-                  },
-                  "& input[type='date']::-webkit-datetime-edit": {
-                    color: "transparent", // Makes text completely invisible
-                  },
-                  "& input[type='date']::-webkit-calendar-picker-indicator": {
-                    color: "#1976D2", // Calendar icon color
-                    filter:
-                      "invert(40%) sepia(60%) saturate(500%) hue-rotate(200deg)", // Custom color effect
-                    cursor: "pointer", // Changes the cursor to pointer
-                  },
-                }}
-              />
-            )}
-            renderTags={(value, getTagProps) =>
-              value.map((option: string, index: number) => (
-                <Chip
-                  label={option}
-                  {...getTagProps({ index })}
-                  color="primary"
-                  sx={{
-                    margin: "4px",
-                    borderColor: "gray", // Chip border color
-                  }}
-                />
-              ))
-            }
+            label="Skills"
+            multiple
+            placeholder="Add skills"
           />
+
           <FormControl>
             <Box display="flex" alignItems="center">
               <FormLabel id="demo-radio-buttons-group-label">
@@ -545,72 +494,16 @@ const JobSeekerProfileForm: FC = () => {
                   </RadioGroup>
                 </Box>
               </FormControl>
-              <Autocomplete
-                multiple
+              <CustomAutocomplete
                 id="location-input"
                 options={indianCities}
-                value={preferences.location}
+                value={preferences.location!}
                 onChange={handleLocationSelect}
-                disableCloseOnSelect
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Location Preferences"
-                    variant="outlined"
-                    placeholder="Add skills"
-                    fullWidth
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        color: "#FFF", // Text color
-                      },
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "gray", // Default border color, transparent when disabled
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#1976D2", // Border color on hover, transparent when disabled
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#1976D2", // Border color when focused, transparent when disabled
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        color: "gray", // Placeholder color
-                      },
-                      "& .MuiInputLabel-root.Mui-focused": {
-                        color: "#1976D2", // Placeholder color when focused
-                      },
-                      "& input[type='date']::-webkit-datetime-edit-text": {
-                        display: "none", // Hide the default 'dd/mm/yyyy' text
-                        opacity: 0,
-                      },
-                      "& input[type='date']::-webkit-datetime-edit": {
-                        color: "transparent", // Makes text completely invisible
-                      },
-                      "& input[type='date']::-webkit-calendar-picker-indicator":
-                        {
-                          color: "#1976D2", // Calendar icon color
-                          filter:
-                            "invert(40%) sepia(60%) saturate(500%) hue-rotate(200deg)", // Custom color effect
-                          cursor: "pointer", // Changes the cursor to pointer
-                        },
-                    }}
-                  />
-                )}
-                renderTags={(value, getTagProps) =>
-                  value.map((option: string, index: number) => (
-                    <Chip
-                      label={option}
-                      {...getTagProps({ index })}
-                      color="primary"
-                      sx={{
-                        margin: "4px",
-                        borderColor: "gray", // Chip border color
-                      }}
-                    />
-                  ))
-                }
+                label="Location Preferences"
+                multiple
+                placeholder="Select Preffered Location"
               />
+
               <FileUpload
                 onFileChange={handleFileChange}
                 acceptedFormats={["pdf"]}

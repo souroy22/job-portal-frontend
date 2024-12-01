@@ -1,11 +1,8 @@
 import {
-  Autocomplete,
   Button,
-  Chip,
   CircularProgress,
   Container,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import classes from "./style.module.css";
@@ -20,6 +17,7 @@ import { notification } from "../../configs/notification.config";
 import { setUserData } from "../../store/user/userReducer";
 import { RootState } from "../../store/store";
 import { useNavigate } from "react-router-dom";
+import CustomAutocomplete, { OPTION_TYPE } from "../CustomAutoComplete";
 
 type FORM_DATA_TYPE = {
   name: string;
@@ -91,8 +89,11 @@ const CompanyProfileForm = () => {
     }
   };
 
-  const handleLocationSelect = (_: any, newValue: string[]) => {
-    setFormData({ ...formData, location: newValue });
+  const handleLocationSelect = (
+    _: any,
+    newValue: OPTION_TYPE | OPTION_TYPE[] | null
+  ) => {
+    setFormData({ ...formData, location: newValue as string[] });
   };
 
   return (
@@ -133,70 +134,14 @@ const CompanyProfileForm = () => {
             value={formData.website}
             handleChange={handleChange}
           />
-          <Autocomplete
-            multiple
+          <CustomAutocomplete
             id="location-input"
             options={indianCities}
-            value={formData.location}
+            value={formData.location!}
             onChange={handleLocationSelect}
-            disableCloseOnSelect
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Company Locations"
-                variant="outlined"
-                placeholder="Add skills"
-                fullWidth
-                sx={{
-                  "& .MuiInputBase-input": {
-                    color: "#FFF", // Text color
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "gray", // Default border color, transparent when disabled
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#1976D2", // Border color on hover, transparent when disabled
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#1976D2", // Border color when focused, transparent when disabled
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "gray", // Placeholder color
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#1976D2", // Placeholder color when focused
-                  },
-                  "& input[type='date']::-webkit-datetime-edit-text": {
-                    display: "none", // Hide the default 'dd/mm/yyyy' text
-                    opacity: 0,
-                  },
-                  "& input[type='date']::-webkit-datetime-edit": {
-                    color: "transparent", // Makes text completely invisible
-                  },
-                  "& input[type='date']::-webkit-calendar-picker-indicator": {
-                    color: "#1976D2", // Calendar icon color
-                    filter:
-                      "invert(40%) sepia(60%) saturate(500%) hue-rotate(200deg)", // Custom color effect
-                    cursor: "pointer", // Changes the cursor to pointer
-                  },
-                }}
-              />
-            )}
-            renderTags={(value, getTagProps) =>
-              value.map((option: string, index: number) => (
-                <Chip
-                  label={option}
-                  {...getTagProps({ index })}
-                  color="primary"
-                  sx={{
-                    margin: "4px",
-                    borderColor: "gray", // Chip border color
-                  }}
-                />
-              ))
-            }
+            label="Company Preferences"
+            multiple
+            placeholder="Select Company Location"
           />
           <FileUpload
             onFileChange={handleFileChange}
