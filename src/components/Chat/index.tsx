@@ -16,7 +16,10 @@ import CloseIcon from "@mui/icons-material/Close";
 const socket: Socket = io(
   import.meta.env.VITE_HOST === "localhost"
     ? import.meta.env.VITE_LOCAL_BASE_URL
-    : import.meta.env.VITE_PROD_BASE_URL
+    : import.meta.env.VITE_PROD_BASE_URL,
+  {
+    transports: ["websocket", "polling"],
+  }
 );
 
 interface Message {
@@ -85,7 +88,7 @@ const Chat: FC<{
   };
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative", height: "90svh" }}>
       <CloseIcon
         sx={{
           position: "absolute",
@@ -128,7 +131,7 @@ const Chat: FC<{
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          height: "500px",
+          height: "calc(100% - 80px)",
           bgcolor: "#F5F7FB",
           color: "gray",
           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
@@ -188,7 +191,7 @@ const Chat: FC<{
             padding: "10px",
             bgcolor: "#d9d9d9",
             borderRadius: "20px",
-            width: "98%",
+            width: "95%",
             margin: "auto",
             height: "50px",
             marginBottom: "10px",
