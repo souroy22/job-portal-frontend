@@ -37,7 +37,6 @@ import { steps } from "../../assets/data";
 import ChatIcon from "@mui/icons-material/Chat";
 import Chat from "../../components/Chat";
 import { io, Socket } from "socket.io-client";
-import { setUserData } from "../../store/user/userReducer";
 
 const options = ["Applied", "In Review", "Shortlisted", "Rejected", "Accepted"];
 const applicationStatusOptions = [

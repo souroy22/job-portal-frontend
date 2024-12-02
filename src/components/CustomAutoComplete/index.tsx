@@ -15,6 +15,7 @@ type CustomAutocompleteProps = {
     value: OPTION_TYPE | OPTION_TYPE[] | null
   ) => void;
   label: string;
+  error?: string;
   placeholder?: string;
   multiple?: boolean;
   disableCloseOnSelect?: boolean;
@@ -32,9 +33,10 @@ const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
   label,
   placeholder = "",
   multiple = false,
-  disableCloseOnSelect = false,
+  disableCloseOnSelect,
   showCustomIcon = false,
   open = false,
+  error,
   setOpen,
   sx = {},
 }) => {
@@ -50,7 +52,7 @@ const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
       value={value}
       onChange={onChange}
       multiple={multiple}
-      disableCloseOnSelect={disableCloseOnSelect}
+      disableCloseOnSelect={disableCloseOnSelect ?? multiple ?? true}
       popupIcon={showCustomIcon ? null : undefined}
       onOpen={showCustomIcon && setOpen ? () => setOpen(true) : undefined}
       onClose={showCustomIcon && setOpen ? () => setOpen(false) : undefined}
@@ -59,6 +61,8 @@ const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
         <TextField
           {...params}
           label={label}
+          error={!!error?.trim()}
+          helperText={error}
           variant="outlined"
           placeholder={placeholder}
           fullWidth
@@ -77,7 +81,13 @@ const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
               </>
             ),
           }}
-          sx={sx}
+          sx={{
+            ...sx,
+            backgroundColor: "#030817", // Change this to your desired color
+            "& .MuiInputBase-root": {
+              backgroundColor: "#030817", // Input field background color
+            },
+          }}
         />
       )}
       renderTags={(value, getTagProps) =>

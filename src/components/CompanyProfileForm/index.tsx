@@ -26,6 +26,10 @@ type FORM_DATA_TYPE = {
   location: string[];
 };
 
+type ERROR_TYPE = {
+  [key in keyof FORM_DATA_TYPE]?: string;
+};
+
 const CompanyProfileForm = () => {
   const [formData, setFormData] = useState<FORM_DATA_TYPE>({
     name: "",
@@ -34,6 +38,7 @@ const CompanyProfileForm = () => {
     website: "",
     location: [],
   });
+  const [errors, setErrors] = useState<ERROR_TYPE>({});
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -45,25 +50,64 @@ const CompanyProfileForm = () => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
+  const validateField = (
+    name: keyof FORM_DATA_TYPE,
+    value: string | string[]
+  ) => {
+    if (
+      name === "website" &&
+      value &&
+      !/^https?:\/\/[^\s]+$/i.test(value as string)
+    ) {
+      return "Invalid website URL.";
+    }
+    if (name === "name" && !(value as string).trim()) {
+      return "Company name is required.";
+    }
+    if (name === "description" && (value as string).trim().length < 10) {
+      return "Description should be at least 10 characters long.";
+    }
+    if (name === "industry" && !(value as string).trim()) {
+      return "Industry type is required.";
+    }
+    if (name === "location" && (!value || (value as string[]).length === 0)) {
+      return "At least one location must be selected.";
+    }
+    return "";
+  };
+
   const handleFileChange = (selectedFile: File | null) => {
     setFile(selectedFile);
   };
 
+  const validateForm = () => {
+    const newErrors: ERROR_TYPE = {};
+    for (const key in formData) {
+      const error = validateField(
+        key as keyof FORM_DATA_TYPE,
+        formData[key as keyof FORM_DATA_TYPE]
+      );
+      if (error) {
+        newErrors[key as keyof FORM_DATA_TYPE] = error;
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     dispatch(setGlobalLoading(true));
     setLoading(true);
-    // Create a new FormData object to append all the fields
     const companyFormData = new FormData();
 
-    // Append form data fields (skills, experience, education, preferences)
     companyFormData.append("name", JSON.stringify(formData.name)); // Convert to JSON string to send as an array
     companyFormData.append("description", JSON.stringify(formData.description)); // Convert to JSON string to send as an array
     companyFormData.append("industry", JSON.stringify(formData.industry)); // Convert to JSON string to send as an array
     companyFormData.append("website", JSON.stringify(formData.website)); // Convert to JSON string to send as an object
     companyFormData.append("location", JSON.stringify(formData.location)); // Experience type (fresher, etc.)
 
-    // Append the file if available
     if (file) {
       companyFormData.append("logo", file); // Assuming the input name is "resume"
     }
@@ -112,24 +156,28 @@ const CompanyProfileForm = () => {
             label="Company Name"
             value={formData.name}
             handleChange={handleChange}
+            error={errors.name}
           />
           <CustomInput
             name="description"
             label="Company Description"
             value={formData.description}
             handleChange={handleChange}
+            error={errors.description}
           />
           <CustomInput
             name="industry"
             label="Industry Type"
             value={formData.industry}
             handleChange={handleChange}
+            error={errors.industry}
           />
           <CustomInput
             name="website"
             label="Website Url"
             value={formData.website}
             handleChange={handleChange}
+            error={errors.website}
           />
           <CustomAutocomplete
             id="location-input"
@@ -139,6 +187,7 @@ const CompanyProfileForm = () => {
             label="Company Preferences"
             multiple
             placeholder="Select Company Location"
+            error={errors.location}
           />
           <FileUpload
             onFileChange={handleFileChange}

@@ -93,7 +93,11 @@ const CustomInput: FC<PROP_TYPE> = ({
           },
         }}
       />
-      {error && <span>{error}</span>}
+      {error && (
+        <span style={{ marginTop: "5px", color: "red", fontSize: "10px" }}>
+          {error}
+        </span>
+      )}
     </>
   );
 };
