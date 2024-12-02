@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import {
   Box,
   TextField,
@@ -13,27 +13,27 @@ import AXIOS from "../../configs/axios.confog";
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 
-const socket: Socket = io(
-  import.meta.env.VITE_HOST === "localhost"
-    ? import.meta.env.VITE_LOCAL_BASE_URL
-    : import.meta.env.VITE_PROD_BASE_URL,
-  {
-    transports: ["websocket", "polling"],
-  }
-);
-
 interface Message {
   sender: string;
   message: string;
   createdAt: string;
 }
 
-const Chat: FC<{
+interface PROP_TYPE {
   userId: string;
   otherUserId: string;
   receiverDetails: { name: string; email: string };
   onClose: () => void;
-}> = ({ userId, otherUserId, receiverDetails, onClose }) => {
+  socket: Socket;
+}
+
+const Chat: FC<PROP_TYPE> = ({
+  userId,
+  otherUserId,
+  receiverDetails,
+  onClose,
+  socket,
+}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
 
@@ -57,7 +57,7 @@ const Chat: FC<{
     onLoad();
     return () => {
       socket.off("receive-message");
-      socket.emit("disconnect", { userId });
+      socket.emit("disconnected", { userId });
     };
   }, [userId, otherUserId]);
 

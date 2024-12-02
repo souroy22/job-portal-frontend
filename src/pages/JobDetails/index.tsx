@@ -15,7 +15,7 @@ import {
   Stepper,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { setJobData } from "../../store/job/jobReducer";
 import { getJobDetails, updateJobStatus } from "../../api/job.api";
 import { useParams } from "react-router-dom";
@@ -36,6 +36,8 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import { steps } from "../../assets/data";
 import ChatIcon from "@mui/icons-material/Chat";
 import Chat from "../../components/Chat";
+import { io, Socket } from "socket.io-client";
+import { setUserData } from "../../store/user/userReducer";
 
 const options = ["Applied", "In Review", "Shortlisted", "Rejected", "Accepted"];
 const applicationStatusOptions = [
@@ -59,11 +61,40 @@ const JobDetails = () => {
   const { jobId } = useParams();
   const dispatch = useDispatch();
 
+  const socket: Socket = useMemo(
+    () =>
+      io(
+        import.meta.env.VITE_HOST === "localhost"
+          ? import.meta.env.VITE_LOCAL_BASE_URL
+          : import.meta.env.VITE_PROD_BASE_URL,
+        {
+          transports: ["websocket", "polling"],
+        }
+      ),
+    []
+  );
+
   const onLoad = async () => {
     if (jobId) {
       const jobDetails = await getJobDetails(jobId);
       dispatch(setJobData(jobDetails));
       setJobStatus(jobDetails.status);
+      socket.on("job-status-updated", (data) => {
+        console.log("Data ---------", data);
+        console.log("jobData", jobData);
+        console.log("user", user);
+        console.log("jobData?.id === data.jobId", jobData?.id === data.jobId);
+        console.log("user?.id === data.userId", user?.id === data.userId);
+
+        if (jobId === data.jobId && user?.id === data.userId) {
+          dispatch(
+            setJobData({
+              ...jobData,
+              applicationStatus: data.newStatus,
+            } as any)
+          );
+        }
+      });
     }
   };
 
@@ -92,6 +123,11 @@ const JobDetails = () => {
       dispatch(setGlobalLoading(true));
       if (jobData) {
         await changeStatus(jobData.id, id, value);
+        socket.emit("update-job-status", {
+          jobId: jobData.id,
+          userId: id,
+          newStatus: value,
+        });
       }
       if (jobData?.applicants?.length) {
         const applicants = JSON.parse(JSON.stringify(jobData?.applicants));
@@ -121,7 +157,7 @@ const JobDetails = () => {
 
   useEffect(() => {
     onLoad();
-  }, []);
+  }, [jobData]);
 
   return (
     <Container
@@ -161,6 +197,7 @@ const JobDetails = () => {
             userId={user?.id!}
             receiverDetails={receiverDetails}
             onClose={closeChat}
+            socket={socket}
           />
         )}
       </Box>
