@@ -12,6 +12,7 @@ import {
   RadioGroup,
   Radio,
   CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import classes from "./style.module.css";
@@ -42,7 +43,7 @@ interface Education {
 }
 
 interface Preferences {
-  jobType?: string[];
+  jobType?: string;
   location?: string[];
 }
 
@@ -63,13 +64,23 @@ const JobSeekerProfileForm: FC = () => {
   const [skills, setSkills] = useState<string[]>([]);
   const [experience, setExperience] = useState<Experience[]>([newExp]);
   const [education, setEducation] = useState<Education[]>([newEducation]);
-  const [preferences, setPreferences] = useState<Preferences>({});
+  const [preferences, setPreferences] = useState<Preferences>({
+    jobType: "Full-time",
+    location: [],
+  });
   const [currentCompanyIndex, setCurrentCompanyIndex] = useState<null | number>(
     null
   );
   const [expType, setExpType] = useState<string>("fresher");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    skills: "",
+    experience: "",
+    education: "",
+    preferences: "",
+    file: "",
+  });
 
   const { user } = useSelector((state: RootState) => state.userReducer);
 
@@ -77,6 +88,49 @@ const JobSeekerProfileForm: FC = () => {
 
   const handleAddExperience = () => {
     setExperience([...experience, newExp]);
+  };
+
+  const validateForm = () => {
+    const newErrors: any = {};
+    let valid = true;
+
+    // Validate Skills
+    if (skills.length === 0) {
+      newErrors.skills = "Skills are required.";
+      valid = false;
+    }
+
+    // Validate Experience
+    if (expType !== "fresher") {
+      for (const exp of experience) {
+        if (!exp.company || !exp.role || !exp.startDate) {
+          newErrors.experience =
+            "Company, Role, and Start Date are required for each experience.";
+          valid = false;
+          break;
+        }
+      }
+    }
+    // Validate Education
+    for (const edu of education) {
+      if (!edu.institution || !edu.degree || !edu.yearOfPassing) {
+        newErrors.education =
+          "Institution, Degree, and Year of Passing are required for each education.";
+        valid = false;
+        break;
+      }
+    }
+
+    // Validate Preferences
+    if (!preferences.jobType || !preferences.location) {
+      newErrors.preferences = "Job Type and Location preferences are required.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    console.log("newErrors", newErrors);
+
+    return valid;
   };
 
   const handleSkillsChange = (
@@ -119,6 +173,13 @@ const JobSeekerProfileForm: FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+    if (!file) {
+      notification.error("Please select your resume");
+      return;
+    }
     dispatch(setGlobalLoading(true));
     setLoading(true);
     // Create a new FormData object to append all the fields
@@ -130,9 +191,8 @@ const JobSeekerProfileForm: FC = () => {
     formData.append("preferences", JSON.stringify(preferences));
     formData.append("expType", JSON.stringify(expType));
 
-    // Append the file if available
     if (file) {
-      formData.append("resume", file); // Assuming the input name is "resume"
+      formData.append("resume", file);
     }
 
     try {
@@ -198,6 +258,7 @@ const JobSeekerProfileForm: FC = () => {
             label="Skills"
             multiple
             placeholder="Add skills"
+            error={errors.skills}
           />
 
           <FormControl>
@@ -310,6 +371,9 @@ const JobSeekerProfileForm: FC = () => {
                       }
                     />
                   </Box>
+                  {errors.experience && (
+                    <FormHelperText error>{errors.experience}</FormHelperText>
+                  )}
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -356,6 +420,7 @@ const JobSeekerProfileForm: FC = () => {
                   />
                 </Stack>
               ))}
+
               <Button
                 variant="outlined"
                 fullWidth
@@ -403,6 +468,9 @@ const JobSeekerProfileForm: FC = () => {
                 />
               </Stack>
             ))}
+            {errors.education && (
+              <FormHelperText error>{errors.education}</FormHelperText>
+            )}
             <Button
               variant="outlined"
               startIcon={<AddCircleOutlineIcon />}
@@ -503,6 +571,9 @@ const JobSeekerProfileForm: FC = () => {
                 multiple
                 placeholder="Select Preffered Location"
               />
+              {errors.preferences && (
+                <FormHelperText error>{errors.preferences}</FormHelperText>
+              )}
 
               <FileUpload
                 onFileChange={handleFileChange}
