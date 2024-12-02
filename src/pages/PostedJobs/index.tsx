@@ -42,16 +42,33 @@ const PostedJobs = () => {
         Posted Jobs
       </Typography>
       <Box className={classes.jobListContainer}>
-        {jobs?.map((job) => (
-          <JobCard
-            title={job.title}
-            location={job.location}
-            description={job.description}
-            logo={job.logo}
-            jobId={job.id}
-            applied={job.applied}
-          />
-        ))}
+        {!jobs?.length ? (
+          <Box
+            sx={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h5" color="gray">
+              No Data found
+            </Typography>
+          </Box>
+        ) : (
+          jobs?.map((job) => (
+            <JobCard
+              title={job.title}
+              location={job.location}
+              description={job.description}
+              logo={job.logo}
+              jobId={job.id}
+              applied={job.applied}
+            />
+          ))
+        )}
       </Box>
     </Container>
   );
