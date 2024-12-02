@@ -29,10 +29,24 @@ const Home = () => {
           variant="h3"
           fontWeight="bold"
           gutterBottom
-          sx={{ color: "#FFFFFF" }} // White text for visibility
+          sx={{ color: "#FFFFFF", display: "inline-block" }} // White text for visibility
         >
-          Find Your Dream Job
+          Find Your
+          <Typography
+            variant="h3"
+            fontWeight="bold"
+            gutterBottom
+            sx={{
+              color: "#88D8BC",
+              display: "inline-block",
+              marginLeft: "10px",
+            }}
+          >
+            Dream
+          </Typography>{" "}
+          Job
         </Typography>
+
         <Typography
           variant="h3"
           fontWeight="bold"
