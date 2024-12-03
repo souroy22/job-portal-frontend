@@ -37,6 +37,7 @@ import { steps } from "../../assets/data";
 import ChatIcon from "@mui/icons-material/Chat";
 import Chat from "../../components/Chat";
 import { io, Socket } from "socket.io-client";
+import JobDetailsSkeleton from "../../components/JobDetailsSkeleton";
 
 const options = ["Applied", "In Review", "Shortlisted", "Rejected", "Accepted"];
 const applicationStatusOptions = [
@@ -158,394 +159,416 @@ const JobDetails = () => {
       sx={{ color: "#FFF", p: 3 }}
       className={classes.jobDetailsContainer}
     >
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: "30px",
-          right: "70px",
-          zIndex: "999999 !important",
-        }}
-      >
-        {!open && user?.role === "job_seeker" && (
-          <ChatIcon
+      {!jobData ? (
+        <JobDetailsSkeleton />
+      ) : (
+        <>
+          <Box
             sx={{
-              width: "50px !important",
-              height: "50px !important",
-              color: "orange",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              setReceiverDetails({
-                name: jobData?.recruiterDetails.name!,
-                email: jobData?.recruiterDetails.email!,
-              });
-              setOtherUserId(jobData?.recruiterId!);
-              setOpen(true);
-            }}
-          />
-        )}
-        {open && (
-          <Chat
-            otherUserId={otherUserId}
-            userId={user?.id!}
-            receiverDetails={receiverDetails}
-            onClose={closeChat}
-            socket={socket}
-          />
-        )}
-      </Box>
-      <Stack spacing={3}>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h3" fontWeight={700}>
-            {jobData?.title}
-          </Typography>
-          <Box>
-            <img src={jobData?.logo} width="100px" height="50px" />
-          </Box>
-        </Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Box className={classes.logoWithData}>
-            <LocationOnIcon fontSize="small" />
-            {jobData?.location}
-          </Box>
-          <Box className={classes.logoWithData}>
-            <BusinessCenterIcon fontSize="small" />
-            {Number(jobData?.applicantCount) === 0
-              ? "No Applicant"
-              : Number(jobData?.applicantCount)}
-          </Box>
-          {user?.role === "job_seeker" ? (
-            <Box className={classes.logoWithData}>
-              <BlindsIcon fontSize="small" />
-              {jobData?.status === "open" ? "Open" : "Closed"}
-            </Box>
-          ) : (
-            <Box>
-              <FormControl
-                variant="outlined"
-                sx={{
-                  minWidth: 200,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#fff",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#fff",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#fff",
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "#fff",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#fff",
-                  },
-                }}
-              >
-                <InputLabel shrink>Status</InputLabel>
-                <Select
-                  value={jobStatus as any}
-                  onChange={(event) =>
-                    handleChangeJobStatus(event.target.value)
-                  }
-                  // label="Status"
-                  sx={{
-                    color: "#fff",
-                    "& .MuiSvgIcon-root": {
-                      color: "#fff",
-                    },
-                  }}
-                >
-                  {applicationStatusOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-          )}
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            gap: "20px",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <Typography variant="h4" fontWeight={600}>
-            Job Type:{" "}
-          </Typography>
-          <Typography variant="h6">{jobData?.jobType}</Typography>
-        </Box>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            Key Skills
-          </Typography>
-          <Box sx={{ display: "flex", gap: "20px" }}>
-            {jobData?.requirements.map((skill) => (
-              <Chip
-                label={skill}
-                sx={{
-                  bgcolor: "#0a267c",
-                  color: "#FFF",
-                  fontWeight: 700,
-                  textShadow: "0px 0px 8px rgba(255, 255, 255, 0.8)",
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-        {user?.role === "job_seeker" && jobData?.applied && (
-          <Box sx={{ width: "100%" }}>
-            <Stepper>
-              {steps.map((label, index) => {
-                const currentStepIndex = steps.indexOf(
-                  jobData?.applicationStatus ?? ""
-                );
-                const isCompleted = index < currentStepIndex;
-                const isCurrent = index === currentStepIndex;
-
-                return (
-                  <Step key={label} active={isCurrent}>
-                    <StepLabel
-                      sx={{
-                        color: isCompleted
-                          ? "green !important"
-                          : isCurrent
-                          ? "orange !important"
-                          : "gray !important",
-                        "& .MuiStepLabel-label": {
-                          color: isCompleted
-                            ? "green !important"
-                            : isCurrent
-                            ? "orange !important"
-                            : "gray !important",
-                          fontWeight: isCurrent
-                            ? "bold !important"
-                            : "normal !important",
-                        },
-                        "& .MuiStepIcon-root": {
-                          color: isCompleted
-                            ? "green !important"
-                            : isCurrent
-                            ? "orange !important"
-                            : "gray !important", // Change step icon color
-                        },
-                      }}
-                    >
-                      {label}
-                    </StepLabel>
-                  </Step>
-                );
-              })}
-            </Stepper>
-          </Box>
-        )}
-
-        <Box>
-          <Typography variant="h4" fontWeight={600} gutterBottom>
-            Job Description
-          </Typography>
-          <MarkdownPreview
-            source={jobData?.description}
-            style={{ padding: 16 }}
-          />
-        </Box>
-        {user?.role === "job_seeker" && (
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={handleApply}
-            disabled={loading || jobData?.applied}
-            sx={{
-              bgcolor:
-                loading || jobData?.applied ? "#676767 !important" : "#FFF",
-              color: "#000",
-              fontWeight: 700,
+              position: "fixed",
+              bottom: "30px",
+              right: "70px",
+              zIndex: "999999 !important",
             }}
           >
-            {loading ? (
-              <CircularProgress
+            {!open && user?.role === "job_seeker" && (
+              <ChatIcon
                 sx={{
-                  color: "white",
-                  width: "25px !important",
-                  height: "25px !important",
+                  width: "50px !important",
+                  height: "50px !important",
+                  color: "orange",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setReceiverDetails({
+                    name: jobData?.recruiterDetails.name!,
+                    email: jobData?.recruiterDetails.email!,
+                  });
+                  setOtherUserId(jobData?.recruiterId!);
+                  setOpen(true);
                 }}
               />
-            ) : (
-              "Apply"
             )}
-          </Button>
-        )}
-        {user?.role === "recruiter" && (
-          <Box>
-            <Typography variant="h4" fontWeight={700} gutterBottom>
-              Applicants
-            </Typography>
-            {!jobData?.applicants?.length ? (
-              <Typography variant="h6" sx={{ color: "red" }} gutterBottom>
-                No One applied
+            {open && (
+              <Chat
+                otherUserId={otherUserId}
+                userId={user?.id!}
+                receiverDetails={receiverDetails}
+                onClose={closeChat}
+                socket={socket}
+              />
+            )}
+          </Box>
+          <Stack spacing={3}>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="h3" fontWeight={700}>
+                {jobData?.title}
               </Typography>
-            ) : (
-              <Box
-                sx={{ display: "flex", flexDirection: "column", gap: "30px" }}
-              >
-                {jobData?.applicants?.map((applicant, index) => (
-                  <Box
+              <Box>
+                <img src={jobData?.logo} width="100px" height="50px" />
+              </Box>
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Box className={classes.logoWithData}>
+                <LocationOnIcon fontSize="small" />
+                {jobData?.location}
+              </Box>
+              <Box className={classes.logoWithData}>
+                <BusinessCenterIcon fontSize="small" />
+                {Number(jobData?.applicantCount) === 0
+                  ? "No Applicant"
+                  : Number(jobData?.applicantCount)}
+              </Box>
+              {user?.role === "job_seeker" ? (
+                <Box className={classes.logoWithData}>
+                  <BlindsIcon fontSize="small" />
+                  {jobData?.status === "open" ? "Open" : "Closed"}
+                </Box>
+              ) : (
+                <Box>
+                  <FormControl
+                    variant="outlined"
                     sx={{
-                      backgroundColor: "#030817",
-                      color: "#FFF",
-                      p: 3,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "20px",
-                      borderRadius: "10px",
-                      position: "relative",
+                      minWidth: 200,
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#fff",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#fff",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#fff",
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "#fff",
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#fff",
+                      },
                     }}
                   >
-                    <ChatIcon
+                    <InputLabel shrink>Status</InputLabel>
+                    <Select
+                      value={jobStatus as any}
+                      onChange={(event) =>
+                        handleChangeJobStatus(event.target.value)
+                      }
+                      // label="Status"
                       sx={{
-                        width: "30px !important",
-                        height: "30px !important",
-                        color: "white",
-                        cursor: "pointer",
-                        position: "absolute",
-                        top: "20px",
-                        right: "100px",
-                      }}
-                      onClick={() => {
-                        setReceiverDetails({
-                          name: applicant.name,
-                          email: applicant.email,
-                        });
-                        setOtherUserId(applicant.id);
-                        setOpen(true);
-                      }}
-                    />
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
-                      <Typography variant="h6">{applicant.name}</Typography>
-                      <Box>
-                        <CloudDownloadIcon />
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
-                      <Box sx={{ display: "flex", gap: "5px" }}>
-                        <EmailIcon />{" "}
-                        <Typography variant="h6">{applicant.email}</Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          width: "60%",
-                          display: "flex",
-                          justifyContent: "flex-end",
-                        }}
-                      >
-                        <Box>
-                          <Typography variant="h6" gutterBottom textAlign="end">
-                            Skills
-                          </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: "10px",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            {applicant.skills.map((skill: string) => (
-                              <Chip
-                                label={skill}
-                                sx={{
-                                  bgcolor: "#0a267c",
-                                  color: "#FFF",
-                                  fontWeight: 700,
-                                  textShadow:
-                                    "0px 0px 8px rgba(255, 255, 255, 0.8)",
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Box>
-                    <Divider sx={{ backgroundColor: "#444444", my: 2 }} />
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        flexWrap: "wrap",
+                        color: "#fff",
+                        "& .MuiSvgIcon-root": {
+                          color: "#fff",
+                        },
                       }}
                     >
-                      <Box>{formatDate(applicant.appliedAt)}</Box>
-                      <Box>
-                        <FormControl
-                          variant="outlined"
+                      {applicationStatusOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+              )}
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "20px",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Typography variant="h4" fontWeight={600}>
+                Job Type:{" "}
+              </Typography>
+              <Typography variant="h6">{jobData?.jobType}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h4" gutterBottom>
+                Key Skills
+              </Typography>
+              <Box sx={{ display: "flex", gap: "20px" }}>
+                {jobData?.requirements.map((skill) => (
+                  <Chip
+                    label={skill}
+                    sx={{
+                      bgcolor: "#0a267c",
+                      color: "#FFF",
+                      fontWeight: 700,
+                      textShadow: "0px 0px 8px rgba(255, 255, 255, 0.8)",
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+            {user?.role === "job_seeker" && jobData?.applied && (
+              <Box sx={{ width: "100%" }}>
+                <Stepper>
+                  {steps.map((label, index) => {
+                    const currentStepIndex = steps.indexOf(
+                      jobData?.applicationStatus ?? ""
+                    );
+                    const isCompleted = index < currentStepIndex;
+                    const isCurrent = index === currentStepIndex;
+
+                    return (
+                      <Step key={label} active={isCurrent}>
+                        <StepLabel
                           sx={{
-                            minWidth: 200,
-                            "& .MuiOutlinedInput-root": {
-                              "& fieldset": {
-                                borderColor: "#fff", // White border color
-                              },
-                              "&:hover fieldset": {
-                                borderColor: "#fff", // White border on hover
-                              },
-                              "&.Mui-focused fieldset": {
-                                borderColor: "#fff", // White border on focus
-                              },
+                            color: isCompleted
+                              ? "green !important"
+                              : isCurrent
+                              ? "orange !important"
+                              : "gray !important",
+                            "& .MuiStepLabel-label": {
+                              color: isCompleted
+                                ? "green !important"
+                                : isCurrent
+                                ? "orange !important"
+                                : "gray !important",
+                              fontWeight: isCurrent
+                                ? "bold !important"
+                                : "normal !important",
                             },
-                            "& .MuiInputLabel-root": {
-                              color: "#fff", // White label color
-                            },
-                            "& .MuiInputLabel-root.Mui-focused": {
-                              color: "#fff", // White label on focus
+                            "& .MuiStepIcon-root": {
+                              color: isCompleted
+                                ? "green !important"
+                                : isCurrent
+                                ? "orange !important"
+                                : "gray !important", // Change step icon color
                             },
                           }}
                         >
-                          <InputLabel shrink>Status</InputLabel>
-                          <Select
-                            value={applicant.status}
-                            sx={{
-                              color: "#fff", // Text color
-                              "& .MuiSvgIcon-root": {
-                                color: "#fff", // Dropdown arrow color
-                              },
-                            }}
-                          >
-                            {options.map((option) => (
-                              <MenuItem
-                                key={option}
-                                value={option}
-                                selected={option === applicant.status}
-                                onClick={() =>
-                                  handleChangeStatus(
-                                    option,
-                                    applicant.id,
-                                    index
-                                  )
-                                }
-                              >
-                                {option}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Box>
-                    </Box>
-                  </Box>
-                ))}
+                          {label}
+                        </StepLabel>
+                      </Step>
+                    );
+                  })}
+                </Stepper>
               </Box>
             )}
-          </Box>
-        )}
-      </Stack>
+
+            <Box>
+              <Typography variant="h4" fontWeight={600} gutterBottom>
+                Job Description
+              </Typography>
+              <MarkdownPreview
+                source={jobData?.description}
+                style={{ padding: 16 }}
+              />
+            </Box>
+            {user?.role === "job_seeker" && (
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleApply}
+                disabled={loading || jobData?.applied}
+                sx={{
+                  bgcolor:
+                    loading || jobData?.applied ? "#676767 !important" : "#FFF",
+                  color: "#000",
+                  fontWeight: 700,
+                }}
+              >
+                {loading ? (
+                  <CircularProgress
+                    sx={{
+                      color: "white",
+                      width: "25px !important",
+                      height: "25px !important",
+                    }}
+                  />
+                ) : (
+                  "Apply"
+                )}
+              </Button>
+            )}
+            {user?.role === "recruiter" && (
+              <Box>
+                <Typography variant="h4" fontWeight={700} gutterBottom>
+                  Applicants
+                </Typography>
+                {!jobData?.applicants?.length ? (
+                  <Typography variant="h6" sx={{ color: "red" }} gutterBottom>
+                    No One applied
+                  </Typography>
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "30px",
+                    }}
+                  >
+                    {jobData?.applicants?.map((applicant, index) => (
+                      <Box
+                        sx={{
+                          backgroundColor: "#030817",
+                          color: "#FFF",
+                          p: 3,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "20px",
+                          borderRadius: "10px",
+                          position: "relative",
+                        }}
+                      >
+                        <ChatIcon
+                          sx={{
+                            width: "30px !important",
+                            height: "30px !important",
+                            color: "white",
+                            cursor: "pointer",
+                            position: "absolute",
+                            top: "20px",
+                            right: "100px",
+                          }}
+                          onClick={() => {
+                            setReceiverDetails({
+                              name: applicant.name,
+                              email: applicant.email,
+                            });
+                            setOtherUserId(applicant.id);
+                            setOpen(true);
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography variant="h6">{applicant.name}</Typography>
+                          <Box>
+                            <CloudDownloadIcon />
+                          </Box>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: "5px" }}>
+                            <EmailIcon />{" "}
+                            <Typography variant="h6">
+                              {applicant.email}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              width: "60%",
+                              display: "flex",
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <Box>
+                              <Typography
+                                variant="h6"
+                                gutterBottom
+                                textAlign="end"
+                              >
+                                Skills
+                              </Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  gap: "10px",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {applicant.skills.map((skill: string) => (
+                                  <Chip
+                                    label={skill}
+                                    sx={{
+                                      bgcolor: "#0a267c",
+                                      color: "#FFF",
+                                      fontWeight: 700,
+                                      textShadow:
+                                        "0px 0px 8px rgba(255, 255, 255, 0.8)",
+                                    }}
+                                  />
+                                ))}
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Divider sx={{ backgroundColor: "#444444", my: 2 }} />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Box>{formatDate(applicant.appliedAt)}</Box>
+                          <Box>
+                            <FormControl
+                              variant="outlined"
+                              sx={{
+                                minWidth: 200,
+                                "& .MuiOutlinedInput-root": {
+                                  "& fieldset": {
+                                    borderColor: "#fff", // White border color
+                                  },
+                                  "&:hover fieldset": {
+                                    borderColor: "#fff", // White border on hover
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "#fff", // White border on focus
+                                  },
+                                },
+                                "& .MuiInputLabel-root": {
+                                  color: "#fff", // White label color
+                                },
+                                "& .MuiInputLabel-root.Mui-focused": {
+                                  color: "#fff", // White label on focus
+                                },
+                              }}
+                            >
+                              <InputLabel shrink>Status</InputLabel>
+                              <Select
+                                value={applicant.status}
+                                sx={{
+                                  color: "#fff", // Text color
+                                  "& .MuiSvgIcon-root": {
+                                    color: "#fff", // Dropdown arrow color
+                                  },
+                                }}
+                              >
+                                {options.map((option) => (
+                                  <MenuItem
+                                    key={option}
+                                    value={option}
+                                    selected={option === applicant.status}
+                                    onClick={() =>
+                                      handleChangeStatus(
+                                        option,
+                                        applicant.id,
+                                        index
+                                      )
+                                    }
+                                  >
+                                    {option}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </Box>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Stack>
+        </>
+      )}
     </Container>
   );
 };
