@@ -16,3 +16,7 @@
   overflow-y: auto;
   height: calc(100svh - 200px);
 }
+
+.jobListContainer::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Edge */
+}

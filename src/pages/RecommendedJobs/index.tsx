@@ -5,19 +5,14 @@ import { useEffect, useState } from "react";
 import { JOB_TYPE } from "../../store/job/jobReducer";
 import handleAsync from "../../utils/handleAsync";
 import { getRecommendedJobs } from "../../api/job.api";
-import { setGlobalLoading } from "../../store/global/globalReducer";
-import { useDispatch } from "react-redux";
+import DataHandler from "../../components/DataHandler";
 
 const RecommendedJobs = () => {
   const [jobs, setJobs] = useState<JOB_TYPE[] | null>(null);
 
-  const dispatch = useDispatch();
-
   const onLoad = handleAsync(async () => {
-    dispatch(setGlobalLoading(true));
     const data = await getRecommendedJobs();
     setJobs(data.recommendedJobs);
-    dispatch(setGlobalLoading(false));
   });
 
   useEffect(() => {
@@ -40,16 +35,22 @@ const RecommendedJobs = () => {
         Recommended Jobs
       </Typography>
       <Box className={classes.jobListContainer}>
-        {jobs?.map((job) => (
-          <JobCard
-            title={job.title}
-            location={job.location}
-            description={job.description}
-            logo={job.logo}
-            jobId={job.id}
-            applied={job.applied}
-          />
-        ))}
+        <DataHandler
+          data={jobs}
+          renderData={(jobs) =>
+            jobs.map((job) => (
+              <JobCard
+                key={job.id}
+                title={job.title}
+                location={job.location}
+                description={job.description}
+                logo={job.logo}
+                jobId={job.id}
+                applied={job.applied}
+              />
+            ))
+          }
+        />
       </Box>
     </Container>
   );

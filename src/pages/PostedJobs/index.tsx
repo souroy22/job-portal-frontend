@@ -5,22 +5,15 @@ import { useEffect, useState } from "react";
 import { JOB_TYPE } from "../../store/job/jobReducer";
 import handleAsync from "../../utils/handleAsync";
 import { getPostedJobs } from "../../api/job.api";
-import { setGlobalLoading } from "../../store/global/globalReducer";
-import { useDispatch } from "react-redux";
+import DataHandler from "../../components/DataHandler";
 
 const PostedJobs = () => {
   const [jobs, setJobs] = useState<JOB_TYPE[] | null>(null);
 
-  const dispatch = useDispatch();
-
-  const onLoad = handleAsync(
-    async () => {
-      dispatch(setGlobalLoading(true));
-      const data = await getPostedJobs();
-      setJobs(data.data);
-    },
-    () => dispatch(setGlobalLoading(false))
-  );
+  const onLoad = handleAsync(async () => {
+    const data = await getPostedJobs();
+    setJobs(data.data);
+  });
 
   useEffect(() => {
     onLoad();
@@ -42,33 +35,22 @@ const PostedJobs = () => {
         Posted Jobs
       </Typography>
       <Box className={classes.jobListContainer}>
-        {!jobs?.length ? (
-          <Box
-            sx={{
-              height: "100%",
-              width: "100%",
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="h5" color="gray">
-              No Data found
-            </Typography>
-          </Box>
-        ) : (
-          jobs?.map((job) => (
-            <JobCard
-              title={job.title}
-              location={job.location}
-              description={job.description}
-              logo={job.logo}
-              jobId={job.id}
-              applied={job.applied}
-            />
-          ))
-        )}
+        <DataHandler
+          data={jobs}
+          renderData={(jobs) =>
+            jobs.map((job) => (
+              <JobCard
+                key={job.id}
+                title={job.title}
+                location={job.location}
+                description={job.description}
+                logo={job.logo}
+                jobId={job.id}
+                applied={job.applied}
+              />
+            ))
+          }
+        />
       </Box>
     </Container>
   );
