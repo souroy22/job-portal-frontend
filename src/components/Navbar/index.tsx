@@ -135,7 +135,7 @@ const Navbar = () => {
                 height: "10px",
                 backgroundColor: "red",
                 borderRadius: "50%",
-                // border: "2px solid #FFF",
+                cursor: "pointer",
               }}
             />
           )}

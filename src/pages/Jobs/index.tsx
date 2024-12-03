@@ -8,10 +8,10 @@ import { getAllJobs } from "../../api/job.api";
 import { useDispatch, useSelector } from "react-redux";
 import { setJobs } from "../../store/job/jobReducer";
 import { RootState } from "../../store/store";
-import { setGlobalLoading } from "../../store/global/globalReducer";
 import CustomAutocomplete, {
   OPTION_TYPE,
 } from "../../components/CustomAutoComplete";
+import DataHandler from "../../components/DataHandler";
 
 const Jobs = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -72,9 +72,7 @@ const Jobs = () => {
   };
 
   const onLoad = async () => {
-    dispatch(setGlobalLoading(true));
     await fetchJobs();
-    dispatch(setGlobalLoading(false));
   };
 
   const handleClearFilters = async () => {
@@ -156,33 +154,22 @@ const Jobs = () => {
 
       {/* Jobs */}
       <Box className={classes.jobListContainer}>
-        {!jobs?.length ? (
-          <Box
-            sx={{
-              height: "100%",
-              width: "100%",
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="h5" color="gray">
-              No Data found
-            </Typography>
-          </Box>
-        ) : (
-          jobs?.map((job) => (
-            <JobCard
-              title={job.title}
-              location={job.location}
-              description={job.description}
-              logo={job.logo}
-              jobId={job.id}
-              applied={job.applied}
-            />
-          ))
-        )}
+        <DataHandler
+          data={jobs}
+          renderData={(jobs) =>
+            jobs.map((job) => (
+              <JobCard
+                key={job.id}
+                title={job.title}
+                location={job.location}
+                description={job.description}
+                logo={job.logo}
+                jobId={job.id}
+                applied={job.applied}
+              />
+            ))
+          }
+        />
       </Box>
     </Container>
   );

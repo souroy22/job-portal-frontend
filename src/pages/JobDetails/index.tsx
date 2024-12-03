@@ -79,12 +79,6 @@ const JobDetails = () => {
       dispatch(setJobData(jobDetails));
       setJobStatus(jobDetails.status);
       socket.on("job-status-updated", (data) => {
-        console.log("Data ---------", data);
-        console.log("jobData", jobData);
-        console.log("user", user);
-        console.log("jobData?.id === data.jobId", jobData?.id === data.jobId);
-        console.log("user?.id === data.userId", user?.id === data.userId);
-
         if (jobId === data.jobId && user?.id === data.userId) {
           dispatch(
             setJobData({
